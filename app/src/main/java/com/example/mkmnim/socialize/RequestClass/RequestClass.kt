@@ -62,5 +62,4 @@ class GETRequestAsyncTask(context:Context):AsyncTask<String,Int,String>()
     }
 
 
-
 }

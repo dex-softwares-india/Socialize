@@ -1,21 +1,20 @@
-package com.example.mkmnim.socialize
+package com.example.mkmnim.socialize.Controllers
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
+import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener
 {
@@ -26,7 +25,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
+        var wifi=applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        var conn=applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+
+
+//
+//        var sharedPreferences:SharedPreferences=getSharedPreferences("com.example.mkmnim.socialize", Context.MODE_PRIVATE)
+//        sharedPreferences.edit().putString("users","none").apply()
+//        Log.i("mytag",sharedPreferences.getString("users","default"))
+
+
+        fab.setOnClickListener{ view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
 
