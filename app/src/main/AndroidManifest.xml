@@ -24,18 +24,22 @@
         </activity>
 
 
-        <receiver android:name=".Utilities.WifiStateChangeReceiver">
+        <receiver android:name=".Utilities.Broadcast_Receivers.WifiStateChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED"/>
             </intent-filter>
         </receiver>
 
 
-        <receiver android:name=".Utilities.HotspotStateChangeReceiver">
+        <receiver android:name=".Utilities.Broadcast_Receivers.HotspotStateChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.WIFI_AP_STATE_CHANGED"/>
             </intent-filter>
         </receiver>
+
+
+
+
 
 
 

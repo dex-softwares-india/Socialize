@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -15,13 +14,10 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
 import com.example.mkmnim.socialize.Utilities.HOTSPOT_STATE_CHANGE
-import com.example.mkmnim.socialize.Utilities.HotspotStateChangeReceiver
 import com.example.mkmnim.socialize.Utilities.WIFI_STATE_CHANGE
-import com.example.mkmnim.socialize.Utilities.WifiStateChangeReceiver
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
@@ -59,7 +55,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                    //var action = intent?.getAction()
                 if (intent?.getStringExtra("value")=="true")
                 {
-                    //on hotspot enabled
+                    //on hotspot enabled page is created
+
+
                 }
                 else if (intent?.getStringExtra("value")=="false")
                 {

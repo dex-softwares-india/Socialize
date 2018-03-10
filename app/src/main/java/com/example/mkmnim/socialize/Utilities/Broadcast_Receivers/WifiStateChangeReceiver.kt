@@ -1,12 +1,11 @@
-package com.example.mkmnim.socialize.Utilities
+package com.example.mkmnim.socialize.Utilities.Broadcast_Receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.wifi.WifiManager
 import android.support.v4.content.LocalBroadcastManager
-import android.util.Log
-import android.widget.Toast
+import com.example.mkmnim.socialize.Utilities.WIFI_STATE_CHANGE
 
 /**
  * Created by nimish on 10/3/18.
