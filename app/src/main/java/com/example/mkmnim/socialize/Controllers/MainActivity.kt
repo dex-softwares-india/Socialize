@@ -20,13 +20,14 @@ import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
 import com.example.mkmnim.socialize.Utilities.HOTSPOT_STATE_CHANGE
 import com.example.mkmnim.socialize.Utilities.HotspotStateChangeReceiver
+import com.example.mkmnim.socialize.Utilities.WIFI_STATE_CHANGE
 import com.example.mkmnim.socialize.Utilities.WifiStateChangeReceiver
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener
 {
-//    lateinit var wifiStateChangeReceiver:BroadcastReceiver
+    lateinit var wifiStateChangeReceiver:BroadcastReceiver
     lateinit var hotspotStateChangeReceiver: BroadcastReceiver
 
 
@@ -37,29 +38,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         var wifi=applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-//        wifiStateChangeReceiver=object:BroadcastReceiver()
-//        {
-//            override fun onReceive(context: Context?, intent: Intent?)
-//            {
-//                var wifi=context?.applicationContext?.getSystemService(Context.WIFI_SERVICE) as WifiManager
-//                if (wifi.isWifiEnabled)
-//                    Toast.makeText(context,"wifi enabled", Toast.LENGTH_SHORT).show()
-//                else
-//                    Toast.makeText(context,"wifi disabled", Toast.LENGTH_SHORT).show()
-//
-//            }
-//        }
+        wifiStateChangeReceiver=object:BroadcastReceiver()
+        {
+            override fun onReceive(context: Context?, intent: Intent?)
+            {
+                if (intent?.getStringExtra("value")=="true")
+                {
+                    //on wifi enabled
+                }
+                else if (intent?.getStringExtra("value")=="false")
+                {
+                    //on wfi disabled
+                }
+            }
+        }
         hotspotStateChangeReceiver=object:BroadcastReceiver()
         {
             override fun onReceive(context: Context?, intent: Intent?)
             {
-                var action = intent?.getAction()
-                var state = intent?.getStringExtra("value")
+                   //var action = intent?.getAction()
+                if (intent?.getStringExtra("value")=="true")
+                {
+                    //on hotspot enabled
+                }
+                else if (intent?.getStringExtra("value")=="false")
+                {
+                    //on hotspot disabled
+                }
             }
         }
 
 
-//        LocalBroadcastManager.getInstance(this).registerReceiver(wifiStateChangeReceiver,IntentFilter("android.net.wifi.WIFI_STATE_CHANGED"))
+        LocalBroadcastManager.getInstance(this).registerReceiver(wifiStateChangeReceiver,IntentFilter(WIFI_STATE_CHANGE))
         LocalBroadcastManager.getInstance(this).registerReceiver(hotspotStateChangeReceiver, IntentFilter(HOTSPOT_STATE_CHANGE))
 
 
@@ -162,7 +172,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onDestroy()
     {
 
-//        LocalBroadcastManager.getInstance(this).unregisterReceiver(wifiStateChangeReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(wifiStateChangeReceiver)
         LocalBroadcastManager.getInstance(this).unregisterReceiver(hotspotStateChangeReceiver)
         super.onDestroy()
     }
