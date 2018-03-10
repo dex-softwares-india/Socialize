@@ -18,6 +18,7 @@ import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
 import com.example.mkmnim.socialize.Utilities.HOTSPOT_STATE_CHANGE
 import com.example.mkmnim.socialize.Utilities.WIFI_STATE_CHANGE
+import com.example.mkmnim.socialize.WifiService
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
@@ -84,8 +85,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
 
-            var myRequest=GETRequestAsyncTask(this)
-            myRequest.execute("http://192.168.0.105:9213/user1")
+//            var myRequest=GETRequestAsyncTask(this)
+//            myRequest.execute("http://192.168.0.105:9213/user1")
+
+            WifiService.getClientList(this@MainActivity)
+
 
         }
 
