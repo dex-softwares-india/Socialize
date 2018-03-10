@@ -1,23 +1,34 @@
 package com.example.mkmnim.socialize.Controllers
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
+import com.example.mkmnim.socialize.Utilities.HOTSPOT_STATE_CHANGE
+import com.example.mkmnim.socialize.Utilities.HotspotStateChangeReceiver
+import com.example.mkmnim.socialize.Utilities.WifiStateChangeReceiver
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener
 {
+//    lateinit var wifiStateChangeReceiver:BroadcastReceiver
+    lateinit var hotspotStateChangeReceiver: BroadcastReceiver
+
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -26,7 +37,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         var wifi=applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        var conn=applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//        wifiStateChangeReceiver=object:BroadcastReceiver()
+//        {
+//            override fun onReceive(context: Context?, intent: Intent?)
+//            {
+//                var wifi=context?.applicationContext?.getSystemService(Context.WIFI_SERVICE) as WifiManager
+//                if (wifi.isWifiEnabled)
+//                    Toast.makeText(context,"wifi enabled", Toast.LENGTH_SHORT).show()
+//                else
+//                    Toast.makeText(context,"wifi disabled", Toast.LENGTH_SHORT).show()
+//
+//            }
+//        }
+        hotspotStateChangeReceiver=object:BroadcastReceiver()
+        {
+            override fun onReceive(context: Context?, intent: Intent?)
+            {
+                var action = intent?.getAction()
+                var state = intent?.getStringExtra("value")
+            }
+        }
+
+
+//        LocalBroadcastManager.getInstance(this).registerReceiver(wifiStateChangeReceiver,IntentFilter("android.net.wifi.WIFI_STATE_CHANGED"))
+        LocalBroadcastManager.getInstance(this).registerReceiver(hotspotStateChangeReceiver, IntentFilter(HOTSPOT_STATE_CHANGE))
+
+
 
 
 
@@ -40,37 +76,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
 
-
-
-
             var myRequest=GETRequestAsyncTask(this)
             myRequest.execute("http://192.168.0.105:9213/user1")
 
-
-
-
-
-
-
-
-
-
-
-
-
         }
+
+
+
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
-
-
-
-
-
-
     }
+
+
+
 
     override fun onBackPressed()
     {
@@ -136,5 +157,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onDestroy()
+    {
+
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(wifiStateChangeReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(hotspotStateChangeReceiver)
+        super.onDestroy()
     }
 }

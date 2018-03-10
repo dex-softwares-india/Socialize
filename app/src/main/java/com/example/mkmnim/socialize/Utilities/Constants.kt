@@ -1,5 +1,4 @@
 package com.example.mkmnim.socialize.Utilities
 
-/**
- * Created by nimish on 10/3/18.
- */
+var HOTSPOT_STATE_CHANGE = "HOTSPOT_STATE_CHANGE"
+var WIFI_STATE_CHANGE = "WIFI_STATE_CHANGE"
