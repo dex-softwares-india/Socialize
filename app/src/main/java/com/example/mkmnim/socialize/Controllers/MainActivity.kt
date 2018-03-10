@@ -12,29 +12,61 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.telecom.Connection
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
+import android.widget.BaseAdapter
+import android.widget.Toast
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
+import com.example.mkmnim.socialize.Utilities.DISCOVER_CLIENTS
 import com.example.mkmnim.socialize.Utilities.HOTSPOT_STATE_CHANGE
 import com.example.mkmnim.socialize.Utilities.WIFI_STATE_CHANGE
 import com.example.mkmnim.socialize.WifiService
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.chat_activity.*
+import com.example.mkmnim.socialize.Utilities.CheckHotSpotConnection
+
+
+
+//DISCOVER_CLIENTS WILL BE TRUE WHEN HOTSPOT IS ON
+//i.e. Constant Searching is on when HOTSPOT IS ON
+
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener
 {
     lateinit var wifiStateChangeReceiver:BroadcastReceiver
     lateinit var hotspotStateChangeReceiver: BroadcastReceiver
-
+    var connectedClientslist:ArrayList<String>?=null
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+
+        DISCOVER_CLIENTS= WifiService.isHotspotOn(this@MainActivity)
+//        if (DISCOVER_CLIENTS)
+//        {
+//
+//            connectedClientslist=WifiService.getConnectedDevices(this@MainActivity)
+//            ChatListView.adapter=ArrayAdapter<String>(this@MainActivity,android.R.layout.simple_list_item_1,connectedClientslist)
+//
+//        }
+//        else
+//        {
+//            connectedClientslist=ArrayList<String>()
+//            ChatListView.adapter=ArrayAdapter<String>(this@MainActivity,android.R.layout.simple_list_item_1,connectedClientslist)
+//
+//        }
+
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
         var wifi=applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
         wifiStateChangeReceiver=object:BroadcastReceiver()
         {
             override fun onReceive(context: Context?, intent: Intent?)
@@ -42,34 +74,58 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (intent?.getStringExtra("value")=="true")
                 {
                     //on wifi enabled
+//                    Toast.makeText(this@MainActivity,"wifi enabled",Toast.LENGTH_SHORT).show()
+
                 }
                 else if (intent?.getStringExtra("value")=="false")
                 {
                     //on wfi disabled
+//                    Toast.makeText(this@MainActivity,"wifi disabled",Toast.LENGTH_SHORT).show()
+
                 }
             }
         }
+
+
         hotspotStateChangeReceiver=object:BroadcastReceiver()
         {
             override fun onReceive(context: Context?, intent: Intent?)
             {
-                   //var action = intent?.getAction()
+
                 if (intent?.getStringExtra("value")=="true")
                 {
+
+//                    Toast.makeText(this@MainActivity,"hotspot enabled",Toast.LENGTH_SHORT).show()
+                    DISCOVER_CLIENTS=true
+                    //start Scannning
+                    try
+                    {
+//                        this@MainActivity.runOnUiThread(CheckHotSpotConnection(this@MainActivity))
+//                      Log.i("mytag","hello")
+                        var checkHotspotThread=Thread(CheckHotSpotConnection(this@MainActivity))
+                        checkHotspotThread.start()
+                    }
+                    catch(ex:Exception)
+                    {
+                        Toast.makeText(this@MainActivity,ex.message.toString(),Toast.LENGTH_LONG).show()
+                    }
+
+
                     //on hotspot enabled page is created
 
 
                 }
                 else if (intent?.getStringExtra("value")=="false")
                 {
+//                    Toast.makeText(this@MainActivity,"hotspot disabled",Toast.LENGTH_SHORT).show()
+
+                    DISCOVER_CLIENTS=false
                     //on hotspot disabled
                 }
             }
         }
 
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(wifiStateChangeReceiver,IntentFilter(WIFI_STATE_CHANGE))
-        LocalBroadcastManager.getInstance(this).registerReceiver(hotspotStateChangeReceiver, IntentFilter(HOTSPOT_STATE_CHANGE))
+        registerReceivers()
 
 
 
@@ -88,7 +144,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //            var myRequest=GETRequestAsyncTask(this)
 //            myRequest.execute("http://192.168.0.105:9213/user1")
 
-            WifiService.getClientList(this@MainActivity)
+//            var list=WifiService.getClientList(this@MainActivity)
+            Toast.makeText(this@MainActivity, DISCOVER_CLIENTS.toString(),Toast.LENGTH_SHORT).show()
+            connectedClientslist=WifiService.getConnectedDevices(this@MainActivity)
+            ChatListView.adapter=ArrayAdapter<String>(this@MainActivity,android.R.layout.simple_list_item_1,connectedClientslist)
+            Log.i("mytag",connectedClientslist.toString())
+            for (elem in connectedClientslist!!)
+            {
+                Log.i("mytag",elem.toString())
+            }
 
 
         }
@@ -105,6 +169,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    fun registerReceivers()
+    {
+        LocalBroadcastManager.getInstance(this).registerReceiver(wifiStateChangeReceiver, IntentFilter(WIFI_STATE_CHANGE))
+        LocalBroadcastManager.getInstance(this).registerReceiver(hotspotStateChangeReceiver, IntentFilter(HOTSPOT_STATE_CHANGE))
+    }
     override fun onBackPressed()
     {
         if (drawer_layout.isDrawerOpen(GravityCompat.START))

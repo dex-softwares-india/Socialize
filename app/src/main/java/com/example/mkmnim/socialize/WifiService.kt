@@ -1,6 +1,7 @@
 package com.example.mkmnim.socialize
 
 import android.content.Context
+import android.net.wifi.WifiManager
 import android.widget.Toast
 import java.io.BufferedReader
 import java.io.FileReader
@@ -48,5 +49,52 @@ object WifiService
             return listOfIp
         }
 
+    }
+
+    fun getConnectedDevices(context:Context): ArrayList<String>
+    {
+        val arrayList = ArrayList<String>()
+        try
+        {
+            val bufferedReader = BufferedReader(FileReader("/proc/net/arp"))
+            while (true)
+            {
+                val readLine = bufferedReader.readLine() ?: break
+
+                val split = readLine.split(" +".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                if (split != null && split.size >= 4)
+                {
+//                    Toast.makeText(context,readLine.toString(),Toast.LENGTH_SHORT).show()
+                    if (split[0]!="IP")
+                    {
+
+                        arrayList.add(split[0])
+                    }
+                }
+            }
+        }
+        catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+
+        return arrayList
+    }
+    //check whether wifi hotspot on or off
+    fun isHotspotOn(context: Context): Boolean
+    {
+
+        val wifimanager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        try
+        {
+            val method = wifimanager.javaClass.getDeclaredMethod("isWifiApEnabled")
+            method.isAccessible = true
+            return method.invoke(wifimanager) as Boolean
+        }
+        catch (ignored: Throwable)
+        {
+        }
+
+        return false
     }
 }
