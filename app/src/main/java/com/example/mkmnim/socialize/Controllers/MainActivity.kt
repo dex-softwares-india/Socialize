@@ -21,15 +21,11 @@ import android.widget.BaseAdapter
 import android.widget.Toast
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
-import com.example.mkmnim.socialize.Utilities.DISCOVER_CLIENTS
-import com.example.mkmnim.socialize.Utilities.HOTSPOT_STATE_CHANGE
-import com.example.mkmnim.socialize.Utilities.WIFI_STATE_CHANGE
+import com.example.mkmnim.socialize.Utilities.*
 import com.example.mkmnim.socialize.WifiService
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.chat_activity.*
-import com.example.mkmnim.socialize.Utilities.CheckHotSpotConnection
-
 
 
 //DISCOVER_CLIENTS WILL BE TRUE WHEN HOTSPOT IS ON
@@ -47,7 +43,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     {
         super.onCreate(savedInstanceState)
 
-        DISCOVER_CLIENTS= WifiService.isHotspotOn(this@MainActivity)
+        DISCOVER_CLIENTS = WifiService.isHotspotOn(this@MainActivity)
+        HOTSPOT_ON = WifiService.isHotspotOn(this@MainActivity)
+        WIFI_ON = WifiService.isWifiOn(this@MainActivity)
+
+
 //        if (DISCOVER_CLIENTS)
 //        {
 //
@@ -73,12 +73,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 if (intent?.getStringExtra("value")=="true")
                 {
+                    WIFI_ON=true
                     //on wifi enabled
 //                    Toast.makeText(this@MainActivity,"wifi enabled",Toast.LENGTH_SHORT).show()
 
                 }
                 else if (intent?.getStringExtra("value")=="false")
                 {
+                    WIFI_ON=false
                     //on wfi disabled
 //                    Toast.makeText(this@MainActivity,"wifi disabled",Toast.LENGTH_SHORT).show()
 
@@ -97,6 +99,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 //                    Toast.makeText(this@MainActivity,"hotspot enabled",Toast.LENGTH_SHORT).show()
                     DISCOVER_CLIENTS=true
+                    HOTSPOT_ON=true
                     //start Scannning
                     try
                     {
@@ -120,6 +123,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                    Toast.makeText(this@MainActivity,"hotspot disabled",Toast.LENGTH_SHORT).show()
 
                     DISCOVER_CLIENTS=false
+                    HOTSPOT_ON = false
                     //on hotspot disabled
                 }
             }

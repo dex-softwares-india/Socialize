@@ -97,4 +97,12 @@ object WifiService
 
         return false
     }
+
+    fun isWifiOn(context:Context): Boolean
+    {
+        var wifi=context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        if (wifi==null)
+            return false
+        return wifi.isWifiEnabled
+    }
 }
