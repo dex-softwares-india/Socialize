@@ -10,6 +10,7 @@ import java.io.FileReader
 /**
  * Created by nimish on 10/3/18.
  */
+
 object WifiService
 {
     fun getClientList(context: Context):List<String>
@@ -64,7 +65,7 @@ object WifiService
                 val split = readLine.split(" +".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 if (split != null && split.size >= 4)
                 {
-//                    Toast.makeText(context,readLine.toString(),Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,readLine.toString(),Toast.LENGTH_SHORT).show()
                     if (split[0]!="IP")
                     {
 

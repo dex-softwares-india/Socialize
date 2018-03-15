@@ -17,45 +17,69 @@ import com.example.mkmnim.socialize.WifiService
 
 class CheckHotSpotConnection(context: Context)  : Runnable
 {
-    var context=context
+    var context = context
     override fun run()
     {
-        Looper.prepare()
-        var i = 0
-        while (DISCOVER_CLIENTS)
+        try
         {
-//            Log.i("mytag","DISCOVERING_Clients")
-            Toast.makeText(context,"Discovering Clients",Toast.LENGTH_SHORT).show()
-            i = WifiService.getConnectedDevices(context).size
-            if (i>=1)
-            {
-                //client discovered
-                Log.i("mytag","DISCOVERING_Clients if block")
-                Log.i("mytag",WifiService.getConnectedDevices(context)[0].toString())
-                try
-                {
-                    Thread.sleep(3000)
-                }
-                catch (e: InterruptedException)
-                {
-                    e.printStackTrace()
-                }
-                //disable client discovery to end thread
-            }
-            else
-            {
-                Log.i("mytag","DISCOVERING_Clients else block")
-//                Toast.makeText(context,"Discovering Clients else block",Toast.LENGTH_SHORT).show()
-                try
-                {
-                    Thread.sleep(3000)
-                }
-                catch (e: InterruptedException)
-                {
-                    e.printStackTrace()
-                }
 
+
+            Looper.prepare()
+            var i = 0
+            while (DISCOVER_CLIENTS)
+            {
+//            Log.i("mytag","DISCOVERING_Clients")
+                Toast.makeText(context, "Discovering Clients", Toast.LENGTH_SHORT).show()
+                i = WifiService.getConnectedDevices(context).size
+                if (i >= 1)
+                {
+                    //client discovered
+                    Log.i("mytag", "DISCOVERING_Clients if block")
+                    Log.i("mytag", WifiService.getConnectedDevices(context)[0].toString())
+                    try
+                    {
+                        Thread.sleep(3000)
+                    }
+                    catch (e: InterruptedException)
+                    {
+                        e.printStackTrace()
+                    }
+                    //disable client discovery to end thread
+                }
+                else
+                {
+                    Log.i("mytag", "DISCOVERING_Clients else block")
+//                Toast.makeText(context,"Discovering Clients else block",Toast.LENGTH_SHORT).show()
+                    try
+                    {
+                        Thread.sleep(3000)
+                    }
+                    catch (e: InterruptedException)
+                    {
+                        e.printStackTrace()
+                    }
+
+                }
             }
         }
+        catch (ex:Exception)
+        {
+            Toast.makeText(context,"error in CheckHotspotConnection,${ex.toString()}",Toast.LENGTH_SHORT).show()
+        }
+
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

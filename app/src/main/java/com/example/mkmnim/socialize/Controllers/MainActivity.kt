@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         WIFI_ON = WifiService.isWifiOn(this@MainActivity)
 
 
+
 //        if (DISCOVER_CLIENTS)
 //        {
 //
@@ -74,6 +75,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (intent?.getStringExtra("value")=="true")
                 {
                     WIFI_ON=true
+
                     //on wifi enabled
 //                    Toast.makeText(this@MainActivity,"wifi enabled",Toast.LENGTH_SHORT).show()
 
@@ -85,6 +87,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                    Toast.makeText(this@MainActivity,"wifi disabled",Toast.LENGTH_SHORT).show()
 
                 }
+                Log.i("mytag","wifistatechangereceiver wifi - "+ WIFI_ON)
+                Log.i("mytag","wifistatechangereceiverhotspot - "+ HOTSPOT_ON)
+
             }
         }
 
@@ -100,6 +105,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                    Toast.makeText(this@MainActivity,"hotspot enabled",Toast.LENGTH_SHORT).show()
                     DISCOVER_CLIENTS=true
                     HOTSPOT_ON=true
+
+
+
                     //start Scannning
                     try
                     {
@@ -114,6 +122,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
 
 
+
                     //on hotspot enabled page is created
 
 
@@ -126,6 +135,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     HOTSPOT_ON = false
                     //on hotspot disabled
                 }
+                Log.i("mytag","hotspotstatechangereceiver wifi - "+ WIFI_ON)
+                Log.i("mytag","hotspotstatechangereceriver hotspot - "+ HOTSPOT_ON)
+
             }
         }
 
