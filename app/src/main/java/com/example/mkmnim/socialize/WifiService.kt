@@ -5,6 +5,9 @@ import android.net.wifi.WifiManager
 import android.widget.Toast
 import java.io.BufferedReader
 import java.io.FileReader
+import java.io.IOException
+import java.net.InetAddress
+import java.net.UnknownHostException
 
 
 /**
@@ -13,6 +16,7 @@ import java.io.FileReader
 
 object WifiService
 {
+    var LoopCurrentIP=0
     fun getClientList(context: Context):List<String>
     {
         var macCount = 0
@@ -82,6 +86,50 @@ object WifiService
         return arrayList
     }
     //check whether wifi hotspot on or off
+
+    fun getConnectedDevicesFromPING(YourPhoneIPAddress: String): java.util.ArrayList<InetAddress>
+    {
+        val ret = java.util.ArrayList<InetAddress>()
+
+        LoopCurrentIP = 0
+
+        val IPAddress = ""
+        val myIPArray = YourPhoneIPAddress.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        var currentPingAddr: InetAddress
+
+        for (i in 0..255)
+        {
+            try
+            {
+
+                // build the next IP address
+                currentPingAddr = InetAddress.getByName(myIPArray[0] + "." +
+                        myIPArray[1] + "." +
+                        myIPArray[2] + "." +
+                        Integer.toString(LoopCurrentIP))
+
+                // 50ms Timeout for the "ping"
+                if (currentPingAddr.isReachable(50))
+                {
+
+                    ret.add(currentPingAddr)
+                }
+            }
+            catch (ex: UnknownHostException)
+            {
+            }
+            catch (ex: IOException)
+            {
+            }
+
+            LoopCurrentIP+=1
+        }
+        return ret
+    }
+
+
+
+
     fun isHotspotOn(context: Context): Boolean
     {
 

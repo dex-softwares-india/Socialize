@@ -12,6 +12,7 @@ import com.example.mkmnim.socialize.WifiService
 
 /**
  * Created by nimish on 10/3/18.
+ * called whenever the hotspot is on
  */
 
 
