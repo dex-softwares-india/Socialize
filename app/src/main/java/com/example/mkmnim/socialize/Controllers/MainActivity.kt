@@ -1,46 +1,27 @@
 package com.example.mkmnim.socialize.Controllers
 
-import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.inputmethodservice.Keyboard
 import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.os.Handler
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.telecom.Connection
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.BaseAdapter
-import android.widget.ListAdapter
 import android.widget.Toast
 import com.example.mkmnim.socialize.R
-import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
 import com.example.mkmnim.socialize.Utilities.*
-import com.example.mkmnim.socialize.Utilities.API.PageCreator
 import com.example.mkmnim.socialize.WifiService
-import com.koushikdutta.async.callback.CompletedCallback
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.chat_activity.*
-import com.koushikdutta.async.http.WebSocket
-import com.koushikdutta.async.http.server.AsyncHttpServer
-import com.koushikdutta.async.http.server.AsyncHttpServerRequest
-import com.koushikdutta.async.http.server.AsyncHttpServerResponse
-import com.koushikdutta.async.http.server.HttpServerRequestCallback
-import io.socket.client.IO
-import io.socket.client.Socket
+import android.app.Activity
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 
 
 //DISCOVER_CLIENTS WILL BE TRUE WHEN HOTSPOT IS ON
@@ -64,7 +45,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
         wifi=applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
-
         //declaring receivers for hotspot and wifi  *********
         declareReceivers()
         registerReceivers()
@@ -79,19 +59,39 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //        Log.i("mytag",sharedPreferences.getString("users","default"))
 
 
-        val toggle = ActionBarDrawerToggle(
+        val toggle = object:ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        {
+            override fun onDrawerOpened(drawerView: View?)
+            {
+                val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+
+                super.onDrawerClosed(drawerView)
+            }
+        }
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+
         nav_view.setNavigationItemSelectedListener(this)
     }
 
 
+
+
+
+/*Initial fragment added as well*/
     fun setUpConstants()
     {
     DISCOVER_CLIENTS = WifiService.isHotspotOn(this@MainActivity)
     HOTSPOT_ON = WifiService.isHotspotOn(this@MainActivity)
     WIFI_ON = WifiService.isWifiOn(this@MainActivity)
+
+    var fragment=MainFragment() as android.support.v4.app.Fragment
+    var fragmentManager = getSupportFragmentManager()
+    fragmentManager.beginTransaction()
+            .replace(R.id.frame_container, fragment).commit()
+
 }
 
 
@@ -176,28 +176,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    fun onGoPressed(view: View)
-    {
-        if (wifi.isWifiEnabled)
-        {
-            progressBar.visibility=View.VISIBLE
-            hideKeyboardFromNameInputScreen()
-            Handler().postDelayed(Runnable {
-                PageCreator.createHomePage(this@MainActivity, Username.text.toString(), "None")
-                progressBar.visibility=View.INVISIBLE
-
-            },1000)
-        }
-    }
-
-
-    private fun hideKeyboardFromNameInputScreen()
-    {
-
-        var im=getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        im.hideSoftInputFromWindow(
-                Username.getWindowToken(), 0);
-    }
 
 
 
@@ -219,15 +197,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean
     {
         // Handle navigation view item clicks here.
+        var selectedFragment:android.support.v4.app.Fragment?=null
         when (item.itemId)
         {
-            R.id.nav_camera ->
-            {
-                // Handle the camera action
-            }
-            R.id.nav_gallery ->
+            R.id.nav_chat ->
             {
 
+                selectedFragment=ChatFragment()
+
+            }
+            R.id.nav_main ->
+            {
+                selectedFragment=MainFragment()
             }
             R.id.nav_slideshow ->
             {
@@ -247,9 +228,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+
+        if (selectedFragment != null)
+        {
+            var fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.frame_container,selectedFragment).commit()
+
+        }
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
+
 
     override fun onDestroy()
     {
@@ -258,4 +248,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         LocalBroadcastManager.getInstance(this).unregisterReceiver(hotspotStateChangeReceiver)
         super.onDestroy()
     }
+
+
+
 }
