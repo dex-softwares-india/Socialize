@@ -16,10 +16,9 @@ import android.view.MenuItem
 import android.widget.Toast
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.Utilities.*
-import com.example.mkmnim.socialize.WifiService
+import com.example.mkmnim.socialize.Utilities.WifiService
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import android.app.Activity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 

@@ -58,7 +58,7 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
 
     override fun onClick(v: View?)
     {
-
+        v?.isEnabled=false
         onGoPressed(v)
         hideKeyboardFromNameInputScreen()
 

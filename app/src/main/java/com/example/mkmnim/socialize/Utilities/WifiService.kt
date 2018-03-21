@@ -1,13 +1,13 @@
-package com.example.mkmnim.socialize
+package com.example.mkmnim.socialize.Utilities
 
 import android.content.Context
 import android.net.wifi.WifiManager
+import android.util.Log
 import android.widget.Toast
 import java.io.BufferedReader
 import java.io.FileReader
 import java.io.IOException
-import java.net.InetAddress
-import java.net.UnknownHostException
+import java.net.*
 
 
 /**
@@ -69,7 +69,7 @@ object WifiService
                 val split = readLine.split(" +".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 if (split != null && split.size >= 4)
                 {
-                    Toast.makeText(context,readLine.toString(),Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(context,readLine.toString(),Toast.LENGTH_SHORT).show()
                     if (split[0]!="IP")
                     {
 
@@ -103,9 +103,9 @@ object WifiService
             {
 
                 // build the next IP address
-                currentPingAddr = InetAddress.getByName(myIPArray[0] + "." +
-                        myIPArray[1] + "." +
-                        myIPArray[2] + "." +
+                currentPingAddr = InetAddress.getByName(myIPArray[0] + "" +
+                        myIPArray[1] + "" +
+                        myIPArray[2] + "" +
                         Integer.toString(LoopCurrentIP))
 
                 // 50ms Timeout for the "ping"
@@ -122,12 +122,39 @@ object WifiService
             {
             }
 
-            LoopCurrentIP+=1
+            LoopCurrentIP +=1
         }
         return ret
     }
 
+    fun getIpAddress192type(): String?
+    {
+        try
+        {
+            val en = NetworkInterface.getNetworkInterfaces()
+            while (en.hasMoreElements())
+            {
+                val intf = en.nextElement()
+                val enumIpAddr = intf.getInetAddresses()
+                while (enumIpAddr.hasMoreElements())
+                {
+                    val inetAddress = enumIpAddr.nextElement()
+                    if (!inetAddress.isLoopbackAddress() && inetAddress is Inet4Address)
+                    {
+                        val ipAddress = inetAddress.getHostAddress().toString()
+                        Log.e("IP address", "" + ipAddress)
+                        return ipAddress
+                    }
+                }
+            }
+        }
+        catch (ex: SocketException)
+        {
+            Log.e("mytag","Socket exception in GetIP Address of Utilities"+ex.toString())
+        }
 
+        return null
+    }
 
 
     fun isHotspotOn(context: Context): Boolean
