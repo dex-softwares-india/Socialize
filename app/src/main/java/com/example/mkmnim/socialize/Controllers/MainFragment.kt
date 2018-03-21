@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.Utilities.API.PageCreator
+import com.example.mkmnim.socialize.Utilities.WifiService
 import kotlinx.android.synthetic.main.fragment_main.view.*
 
 /**
@@ -43,7 +44,16 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
                 myView!!.progressBar.visibility=View.INVISIBLE
 
             },1000)
+        }
+        if (WifiService.isHotspotOn(context))
+        {
+            myView!!.progressBar.visibility=View.VISIBLE
+            hideKeyboardFromNameInputScreen()
+            Handler().postDelayed(Runnable {
+                PageCreator.createHomePage(activity.applicationContext, myView!!.Username.text.toString(), "None")
+                myView!!.progressBar.visibility=View.INVISIBLE
 
+            },1000)
         }
     }
 
