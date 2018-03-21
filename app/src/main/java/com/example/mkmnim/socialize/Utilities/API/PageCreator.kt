@@ -1,6 +1,7 @@
 package com.example.mkmnim.socialize.Utilities.API
 
 import android.content.Context
+import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
 import com.example.mkmnim.socialize.Utilities.WifiService
 import com.koushikdutta.async.http.server.AsyncHttpServer
 import com.koushikdutta.async.http.server.AsyncHttpServerRequest
@@ -35,7 +36,7 @@ object PageCreator
     }
 
 
-    fun createConnectedDevices(context: Context)
+    fun createAllConnectedDevices(context: Context)
     {
 
         var jsonObject=JSONObject()
@@ -46,18 +47,38 @@ object PageCreator
             override fun onRequest(request: AsyncHttpServerRequest, response: AsyncHttpServerResponse)
             {
                 var listOfConnectedDevices=WifiService.getClientList(context)
-                var listOfConnectedDevices1=WifiService.getConnectedDevices(context)
-                var listOfConnectedDevices2=WifiService.getConnectedDevicesFromPING("http://192.168.43.1")
-
                 jsonObject.put("Users:",listOfConnectedDevices.toString())
-                jsonObject.put("Users1:",listOfConnectedDevices1.toString())
-                jsonObject.put("Users2:",listOfConnectedDevices2.toString())
                 response.send(jsonObject)
             }
 
         })
     }
 
+
+    fun createOnlyConnectedDevices(context: Context)
+    {
+
+        var jsonObject=JSONObject()
+
+
+        server?.get("/connected_users", object : HttpServerRequestCallback
+        {
+            override fun onRequest(request: AsyncHttpServerRequest, response: AsyncHttpServerResponse)
+            {
+                var listOfAlltimeConnectedDevices=WifiService.getClientList(context)
+                var answerList= mutableListOf<Any>()
+                for (i in listOfAlltimeConnectedDevices)
+                {
+                    answerList.add(GETRequestAsyncTask(context).execute("http://"+i+":5000/").get())
+
+                }
+                jsonObject.put("Connected Users:",answerList.toString())
+                response.send(jsonObject)
+//                response.send(answerList.toString())
+            }
+
+        })
+    }
 
 
 }
