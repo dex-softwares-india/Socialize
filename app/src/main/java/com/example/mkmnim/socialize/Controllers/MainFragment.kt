@@ -42,6 +42,7 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
             Handler().postDelayed(Runnable {
                 PageCreator.createHomePage(activity.applicationContext, myView!!.Username.text.toString(), "None")
                 myView!!.progressBar.visibility=View.INVISIBLE
+                PageCreator.server?.listen(5000)
 
             },1000)
         }
@@ -51,6 +52,8 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
             hideKeyboardFromNameInputScreen()
             Handler().postDelayed(Runnable {
                 PageCreator.createHomePage(activity.applicationContext, myView!!.Username.text.toString(), "None")
+                PageCreator.createConnectedDevices(context)
+                PageCreator.server?.listen(5000)
                 myView!!.progressBar.visibility=View.INVISIBLE
 
             },1000)

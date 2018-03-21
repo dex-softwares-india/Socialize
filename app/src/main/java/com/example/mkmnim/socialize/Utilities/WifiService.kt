@@ -87,6 +87,7 @@ object WifiService
     }
     //check whether wifi hotspot on or off
 
+
     fun getConnectedDevicesFromPING(YourPhoneIPAddress: String): java.util.ArrayList<InetAddress>
     {
         val ret = java.util.ArrayList<InetAddress>()
