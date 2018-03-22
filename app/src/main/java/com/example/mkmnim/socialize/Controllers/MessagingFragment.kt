@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,25 +32,35 @@ class MessagingFragment:android.support.v4.app.Fragment()
             messages.add(Message(myView!!.messageEditText.text.toString(),"You"))
             myView!!.messageEditText.text.clear()
             myMessageAdapter.notifyDataSetChanged()
+            hideKeyboardFromMessageInputScreen()
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
         myView=inflater?.inflate(R.layout.fragment_messaging,container,false)
-        messages.add(Message("hello bhai","You"))
-        messages.add(Message("ok bhai","Nimi"))
-        messages.add(Message("bhia bhai hello bhai","You"))
-        messages.add(Message("zinda bhai hello bhai","You"))
+
         messages.add(Message("awwlele hello bhai","You"))
         messages.add(Message("kaisa hai hello bhai","Palku"))
-        myMessageAdapter=MessageAdapter(context,messages)
-        myView!!.messagingListView.adapter=myMessageAdapter
-        myView!!.sendButton.setOnClickListener(SendButtonOnClickListener)
+
+        setAdaptersAndOnClickListeners()
+
+        Log.i("mytag",this.arguments["position"].toString())
+        Log.i("mytag",this.arguments["devices"].toString())
+
         return myView!!
 
     }
 
+
+    fun setAdaptersAndOnClickListeners()
+    {
+        myMessageAdapter=MessageAdapter(context,messages)
+
+        myView!!.messagingListView.adapter=myMessageAdapter
+        myView!!.sendButton.setOnClickListener(SendButtonOnClickListener)
+
+    }
 
     fun replaceFragment(someFragment: android.support.v4.app.Fragment)
     {
@@ -59,4 +70,12 @@ class MessagingFragment:android.support.v4.app.Fragment()
         transaction.commit()
     }
 
+
+    private fun hideKeyboardFromMessageInputScreen()
+    {
+
+        var im=activity.applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        im.hideSoftInputFromWindow(
+                myView!!.messageEditText.getWindowToken(), 0);
+    }
 }

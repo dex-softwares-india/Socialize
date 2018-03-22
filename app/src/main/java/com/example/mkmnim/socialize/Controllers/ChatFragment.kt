@@ -30,16 +30,29 @@ class ChatFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickList
         connectedDevices=WifiService.getConnectedDevices(context)
         myView!!.chatListView.adapter=ArrayAdapter<String>(context,android.R.layout.simple_list_item_1,connectedDevices)
         myView!!.chatListView.setOnItemClickListener(this)
-
         return myView!!
     }
 
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long)
     {
+        var initiateMessagingFragment=MessagingFragment()
+        var args=Bundle()
 
+        args.putInt("position",position)
+        args.putStringArrayList("devices",connectedDevices)
+
+        initiateMessagingFragment.arguments=args
+        replaceFragment(initiateMessagingFragment)
     }
 
+    fun replaceFragment(someFragment: android.support.v4.app.Fragment)
+    {
+        val transaction = fragmentManager.beginTransaction()
+        transaction.replace(R.id.frame_container, someFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
 
 
 }
