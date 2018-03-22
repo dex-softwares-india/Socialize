@@ -49,7 +49,7 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
             Handler().postDelayed(Runnable {
                 PageCreator.createHomePage(activity.applicationContext, myView!!.Username.text.toString(), "None")
                 PageCreator.createAllConnectedDevices(context)
-                PageCreator.createOnlyConnectedDevices(context)
+                PageCreator.createOnlyConnectedDevices1(context)
                 PageCreator.server?.listen(5000)
                 myView!!.progressBar.visibility=View.INVISIBLE
 
