@@ -211,7 +211,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_slideshow ->
             {
-
+                selectedFragment=MessagingFragment()
             }
             R.id.nav_manage ->
             {
