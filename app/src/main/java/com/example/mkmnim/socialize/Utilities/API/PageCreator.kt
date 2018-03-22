@@ -42,7 +42,7 @@ object PageCreator
     }
 
 
-    fun createAllConnectedDevices(context: Context)
+    fun createAllConnectedDevices(context: Context)     //create page at /all_users
     {
 
         var jsonObject=JSONObject()
@@ -61,7 +61,7 @@ object PageCreator
     }
 
 
-    fun createOnlyConnectedDevices(context: Context)
+    fun createOnlyConnectedDevices(context: Context)   //delete later
     {
 
         var jsonObject=JSONObject()
@@ -93,7 +93,7 @@ object PageCreator
     }
 
 
-    fun createOnlyConnectedDevices1(context: Context)
+    fun createOnlyConnectedDevices1(context: Context)  //create /connected_users
     {
 
         var jsonObject=JSONObject()
@@ -112,24 +112,20 @@ object PageCreator
 
                     myResponse=""
                     var url="http://"+i+":5000/"
-                    Log.i("mytag",url)
                     val myRequest=object: StringRequest(url,
                             Response.Listener { volleyresponse ->
                                 ctr += 1
-                                Log.i("mytag", "my volley reponse is" + volleyresponse)
                                 myResponse = volleyresponse.toString()
                                 var myJsonResponse=JSONObject(myResponse)["name"]
-                                Log.i("mytag", myResponse)
-                                Log.i("mytag", "asnwer list is $answerList")
+
                                 if (myResponse != "")
                                 {
                                     Log.i("mytag", myJsonResponse.toString())
-                                    answerList.add(url + "[${myJsonResponse.toString()}]")
+                                    answerList.add(url + ",${myJsonResponse.toString()}")
                                 }
                                 if (ctr == listOfAlltimeConnectedDevices.size)
                                 {
                                     jsonObject.put("Connected Users:", answerList)
-                                    Log.i("mytag", "in if block of response")
                                     response.send(jsonObject)
 
                                 }
@@ -142,7 +138,6 @@ object PageCreator
                                 if (ctr == listOfAlltimeConnectedDevices.size)
                                 {
                                     jsonObject.put("Connected Users:", answerList)
-                                    Log.i("mytag", "in if block of error")
                                     response.send(jsonObject)
 
                                 }
