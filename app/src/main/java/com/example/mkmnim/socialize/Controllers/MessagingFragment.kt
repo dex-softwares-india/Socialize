@@ -7,14 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.example.mkmnim.socialize.Adapters.MessageAdapter
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.Utilities.WifiService
+import kotlinx.android.synthetic.main.fragment_messaging.*
 import kotlinx.android.synthetic.main.fragment_messaging.view.*
 import java.net.Socket
 import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.io.PrintWriter
+import java.net.ServerSocket
 
 
 /**
@@ -46,22 +51,32 @@ class MessagingFragment:android.support.v4.app.Fragment()
 //            hideKeyboardFromMessageInputScreen()
         }
     }
+    var myMessages:List<JSONObject>?=null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
-        myView=inflater?.inflate(R.layout.fragment_messaging,container,false)
+        myView = inflater?.inflate(R.layout.fragment_messaging, container, false)
 
-        messages.add(Message("awwlele hello bhai","You"))
-        messages.add(Message("kaisa hai hello bhai","Palku"))
+        messages.add(Message("awwlele hello bhai", "You"))
+        messages.add(Message("kaisa hai hello bhai", "Palku"))
 
 
         setAdaptersAndOnClickListeners()
 
-        Log.i("mytag",this.arguments["position"].toString())
-        Log.i("mytag",this.arguments["devices"].toString())
-        receiverIP=(this.arguments["devices"] as List<String>).get(this.arguments["position"] as Int) as String
-        Log.i("mytag",receiverIP.toString())
-        ConnectToSocket(5001)
+        Log.i("mytag", this.arguments["position"].toString())
+        Log.i("mytag", this.arguments["devices"].toString())
+        receiverIP = (this.arguments["devices"] as List<String>).get(this.arguments["position"] as Int) as String
+        Log.i("mytag", receiverIP.toString())
+
+        if (WifiService.isWifiOn(context))
+        {
+            ConnectToServerSocket(5001)
+        }
+
+        if (WifiService.isHotspotOn(context))
+        {
+            ConnectToClientSocket(5001)
+        }
 
 
         return myView!!
@@ -69,14 +84,29 @@ class MessagingFragment:android.support.v4.app.Fragment()
     }
 
 
-    fun ConnectToSocket(port:Int)
+    fun ConnectToClientSocket(port:Int)
+    {
+        var serverSocket= ServerSocket(port)
+
+        Thread(Runnable {
+            while (true)
+            {
+                var newSocket=serverSocket.accept()
+                var reader= BufferedReader(InputStreamReader(newSocket.getInputStream()))
+                readContent(reader,newSocket)
+            }
+        }).start()
+    }
+
+
+    fun ConnectToServerSocket(port:Int)  //receiver mobile (that is whose wifi is on)
     {
 
 
             Thread(Runnable {
                 try
                 {
-                    val socket = Socket("192.168.43.76", port)  //host ip for testing using 192.168.43.76
+                    val socket = Socket("192.168.43.1", port)  //use 1 instead of 76 -  -  - host ip for testing using 192.168.43.76
                     out = PrintWriter(socket.getOutputStream())
 
                 }
@@ -95,6 +125,26 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
 
 
+    fun readContent(reader:BufferedReader,newSocket: Socket)
+    {
+
+        Thread(Runnable {
+            while (true)
+            {
+                var messageContent: String? = reader.readLine()
+                if (messageContent == null)
+                {
+                    break
+                }
+                println(messageContent)
+                activity.runOnUiThread{
+                    messages.add(Message(messageContent,"You"))
+                    myMessageAdapter.notifyDataSetChanged()
+                }
+            }
+        }).start()
+
+    }
 
 
     fun setAdaptersAndOnClickListeners()

@@ -143,7 +143,7 @@ object WifiService
                     if (!inetAddress.isLoopbackAddress() && inetAddress is Inet4Address)
                     {
                         val ipAddress = inetAddress.getHostAddress().toString()
-                        Log.e("IP address", "" + ipAddress)
+                        Log.i("mytag", "" + ipAddress)
                         return ipAddress
                     }
                 }
