@@ -1,9 +1,7 @@
 package com.example.mkmnim.socialize.Controllers
 
 import android.content.Context
-import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,10 +10,12 @@ import android.view.inputmethod.InputMethodManager
 import com.example.mkmnim.socialize.Adapters.MessageAdapter
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
-import com.example.mkmnim.socialize.Utilities.API.PageCreator
 import com.example.mkmnim.socialize.Utilities.WifiService
-import kotlinx.android.synthetic.main.fragment_main.view.*
 import kotlinx.android.synthetic.main.fragment_messaging.view.*
+import java.net.Socket
+import org.json.JSONObject
+import java.io.PrintWriter
+
 
 /**
  * Created by nimish on 20/3/18.
@@ -25,14 +25,24 @@ class MessagingFragment:android.support.v4.app.Fragment()
     var myView:View?=null
     var messages= mutableListOf<Message>()
     lateinit var myMessageAdapter:MessageAdapter
-    var contactURl:String?=null
+    var receiverIP:String?=null
+    var out:PrintWriter?=null
     var SendButtonOnClickListener=object:View.OnClickListener
     {
         override fun onClick(v: View?)
         {
             messages.add(Message(myView!!.messageEditText.text.toString(),"You"))
+            var messageText=myView!!.messageEditText.text.toString()
+            Thread(Runnable {
+                var jsonObject=JSONObject()
+                jsonObject.put("messageContent",messageText)
+                jsonObject.put("from",WifiService.getIpAddress192type().toString())
+                jsonObject.put("to",receiverIP.toString())
+                out?.println(jsonObject.toString()+"\n")
+                out?.flush()
+            }).start()
             myView!!.messageEditText.text.clear()
-            myMessageAdapter.notifyDataSetChanged()
+           myMessageAdapter.notifyDataSetChanged()
 //            hideKeyboardFromMessageInputScreen()
         }
     }
@@ -49,11 +59,42 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
         Log.i("mytag",this.arguments["position"].toString())
         Log.i("mytag",this.arguments["devices"].toString())
-        contactURl=(this.arguments["devices"] as List<String>).get(this.arguments["position"] as Int) as String
-        Log.i("mytag",contactURl.toString())
+        receiverIP=(this.arguments["devices"] as List<String>).get(this.arguments["position"] as Int) as String
+        Log.i("mytag",receiverIP.toString())
+        ConnectToSocket(5001)
+
+
         return myView!!
 
     }
+
+
+    fun ConnectToSocket(port:Int)
+    {
+
+
+            Thread(Runnable {
+                try
+                {
+                    val socket = Socket("192.168.43.76", port)  //host ip for testing using 192.168.43.76
+                    out = PrintWriter(socket.getOutputStream())
+
+                }
+                catch (ex:Exception)
+                {
+                    Log.i("mytag",ex.message.toString())
+                }
+
+            }).start()
+
+
+        }
+
+
+
+
+
+
 
 
     fun setAdaptersAndOnClickListeners()
