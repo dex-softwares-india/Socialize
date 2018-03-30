@@ -43,7 +43,7 @@ object WifiService
                         listOfIp.add(splitted[0])
                     }
                     /* for (int i = 0; i < splitted.length; i++)
-                    System.out.println("Addressssssss     "+ splitted[i]);*/
+                    System.outFromClient.println("Addressssssss     "+ splitted[i]);*/
 
                 }
             }
