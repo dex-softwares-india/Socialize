@@ -90,29 +90,25 @@ class MessagingFragment:android.support.v4.app.Fragment()
         receiverIP = (this.arguments["devices"] as List<String>).get(this.arguments["position"] as Int) as String
         Log.i("mytag", receiverIP.toString())
 
-        if (WifiService.isHotspotOn(context))
-        {
-            ConnectToClientSocket(5001)
-
-        }
-
-
-
-        if (WifiService.isWifiOn(context))
-        {
-            var temporaryPort=5005
-            CreateServerHostWithDifferentPorts(temporaryPort)
-        }
+//        if (WifiService.isHotspotOn(context))
+//        {
+//            ConnectToClientSocket(5001)
+//
+//        }
+//
+//
+//
+//        if (WifiService.isWifiOn(context))
+//        {
+//            var temporaryPort=5005
+//            CreateServerHostWithDifferentPorts(temporaryPort)
+//        }
 
 
         if (WifiService.isWifiOn(context))
         {
             ConnectToServerSocket(5001)
-
         }
-
-
-
 
         if (WifiService.isHotspotOn(context))
         {
