@@ -202,7 +202,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_chat ->
             {
 
-                selectedFragment=ChatFragment()
+                selectedFragment=ConnectedUsersFragment()
 
             }
             R.id.nav_main ->

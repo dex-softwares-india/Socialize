@@ -6,3 +6,4 @@ var DISCOVER_CLIENTS = true
 var HOTSPOT_ON = false
 var WIFI_ON= false
 var UNIQUE_CLIENTS_SET= mapOf<String,String>()
+var NO_OF_CLIENTS=0

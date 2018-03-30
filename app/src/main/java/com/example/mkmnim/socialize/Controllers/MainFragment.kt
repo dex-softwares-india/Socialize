@@ -13,9 +13,7 @@ import com.example.mkmnim.socialize.Utilities.API.PageCreator
 import com.example.mkmnim.socialize.Utilities.WifiService
 import kotlinx.android.synthetic.main.fragment_main.view.*
 
-/**
- * Created by nimish on 20/3/18.
- */
+
 class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
 {
     var myView:View?=null
@@ -31,12 +29,14 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
     fun onGoPressed(view: View?)
     {
         var wifi=activity.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
         if (wifi.isWifiEnabled)
         {
             myView!!.progressBar.visibility=View.VISIBLE
             hideKeyboardFromNameInputScreen()
             Handler().postDelayed(Runnable {
                 PageCreator.createHomePage(activity.applicationContext, myView!!.Username.text.toString(), "None")
+                PageCreator.createPortPage()
                 myView!!.progressBar.visibility=View.INVISIBLE
                 PageCreator.server?.listen(5000)
 
@@ -47,15 +47,20 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
             myView!!.progressBar.visibility=View.VISIBLE
             hideKeyboardFromNameInputScreen()
             Handler().postDelayed(Runnable {
+
                 PageCreator.createHomePage(activity.applicationContext, myView!!.Username.text.toString(), "None")
                 PageCreator.createAllConnectedDevices(context)
                 PageCreator.createOnlyConnectedDevices1(context)
                 PageCreator.server?.listen(5000)
+
                 myView!!.progressBar.visibility=View.INVISIBLE
 
             },1000)
         }
     }
+
+
+
 
 
     private fun hideKeyboardFromNameInputScreen()
@@ -72,7 +77,7 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
         onGoPressed(v)
         hideKeyboardFromNameInputScreen()
 
-        var chatFragment=ChatFragment()
+        var chatFragment=ConnectedUsersFragment()
         replaceFragment(chatFragment)
     }
 

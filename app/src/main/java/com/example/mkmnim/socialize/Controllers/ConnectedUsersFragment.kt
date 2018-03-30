@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.fragment_main.view.*
 
 
 
-class ChatFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
+class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
 {
     var myView:View?=null
     lateinit var connectedDevices:ArrayList<String>

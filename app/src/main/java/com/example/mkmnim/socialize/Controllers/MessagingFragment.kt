@@ -25,6 +25,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
     var myView:View?=null
     var messages= mutableListOf<Message>()
     lateinit var myMessageAdapter:MessageAdapter
+    var contactURl:String?=null
     var SendButtonOnClickListener=object:View.OnClickListener
     {
         override fun onClick(v: View?)
@@ -32,7 +33,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
             messages.add(Message(myView!!.messageEditText.text.toString(),"You"))
             myView!!.messageEditText.text.clear()
             myMessageAdapter.notifyDataSetChanged()
-            hideKeyboardFromMessageInputScreen()
+//            hideKeyboardFromMessageInputScreen()
         }
     }
 
@@ -43,11 +44,13 @@ class MessagingFragment:android.support.v4.app.Fragment()
         messages.add(Message("awwlele hello bhai","You"))
         messages.add(Message("kaisa hai hello bhai","Palku"))
 
+
         setAdaptersAndOnClickListeners()
 
         Log.i("mytag",this.arguments["position"].toString())
         Log.i("mytag",this.arguments["devices"].toString())
-
+        contactURl=(this.arguments["devices"] as List<String>).get(this.arguments["position"] as Int) as String
+        Log.i("mytag",contactURl.toString())
         return myView!!
 
     }
@@ -56,7 +59,6 @@ class MessagingFragment:android.support.v4.app.Fragment()
     fun setAdaptersAndOnClickListeners()
     {
         myMessageAdapter=MessageAdapter(context,messages)
-
         myView!!.messagingListView.adapter=myMessageAdapter
         myView!!.sendButton.setOnClickListener(SendButtonOnClickListener)
 
@@ -69,8 +71,6 @@ class MessagingFragment:android.support.v4.app.Fragment()
         transaction.addToBackStack(null)
         transaction.commit()
     }
-
-
     private fun hideKeyboardFromMessageInputScreen()
     {
 
