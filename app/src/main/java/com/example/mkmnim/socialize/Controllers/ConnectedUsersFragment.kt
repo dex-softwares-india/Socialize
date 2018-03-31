@@ -54,7 +54,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         if (WifiService.isWifiOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
         {
 //            var temporaryPort=5004   //receive the port by requesting from Port page
-            var temporaryPort=5123
+            var temporaryPort=5004 //for micromax instead of 5123
             Log.i("mytag","inConnected User fragment Change temporary port by requesting from port page")
             CreateServerHostWithDifferentPorts(temporaryPort)
 

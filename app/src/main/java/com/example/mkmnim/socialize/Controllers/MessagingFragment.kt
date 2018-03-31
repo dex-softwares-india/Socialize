@@ -116,7 +116,12 @@ class MessagingFragment:android.support.v4.app.Fragment()
             var temporaryPort2=5123
             Log.i("mytag","receiver ip is ${receiverIP.toString()} and temporary port is $temporaryPort2")
 //            ConnectToServerSocketHostedByEachClient("192.168.43.195",temporaryPort2) //client ip with client port
+
+
+            ConnectToServerSocketHostedByEachClient("192.168.43.195",5004)//5004 of micromax
             ConnectToServerSocketHostedByEachClient("192.168.43.76",temporaryPort2)
+
+
             //replace this host by receiveIP and run in a loop each device per port
 //            ConnectToServerSocketHostedByEachClient("192.168.43.76",5004)
         }
@@ -137,7 +142,6 @@ class MessagingFragment:android.support.v4.app.Fragment()
             {
                 val socket = Socket(host, port)  //use 1 instead of 76 -  -  - host ip for testing using 192.168.43.76
                 outFromServer = PrintWriter(socket.getOutputStream())
-
             }
             catch (ex:Exception)
             {
