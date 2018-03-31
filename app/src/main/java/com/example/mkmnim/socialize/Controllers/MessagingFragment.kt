@@ -27,7 +27,8 @@ class MessagingFragment:android.support.v4.app.Fragment()
     lateinit var myMessageAdapter:MessageAdapter
     var receiverIP:String?=null
     var outFromClient:PrintWriter?=null
-    var outFromServer:PrintWriter?=null //this should be many corresponding to each port
+//    var outFromServer:PrintWriter?=null //this should be many corresponding to each port
+    var outFromServerHashMap=HashMap<String,PrintWriter>()
     private var clientSendButtonOnClickListener=object: View.OnClickListener
     {
 
@@ -62,6 +63,8 @@ class MessagingFragment:android.support.v4.app.Fragment()
                 jsonObject.put("messageContent",messageText)
                 jsonObject.put("from",WifiService.getIpAddress192type().toString())
                 jsonObject.put("to",receiverIP.toString())
+                var outFromServer:PrintWriter?=null
+                outFromServer=outFromServerHashMap.get(receiverIP)
                 outFromServer?.println(jsonObject.toString())
                 outFromServer?.flush()
 
@@ -141,7 +144,8 @@ class MessagingFragment:android.support.v4.app.Fragment()
             try
             {
                 val socket = Socket(host, port)  //use 1 instead of 76 -  -  - host ip for testing using 192.168.43.76
-                outFromServer = PrintWriter(socket.getOutputStream())
+                var outFromServer = PrintWriter(socket.getOutputStream())
+                outFromServerHashMap[host]=outFromServer
             }
             catch (ex:Exception)
             {
