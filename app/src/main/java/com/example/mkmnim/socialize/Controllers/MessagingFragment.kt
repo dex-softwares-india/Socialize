@@ -27,7 +27,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
     lateinit var myMessageAdapter:MessageAdapter
     var receiverIP:String?=null
     var outFromClient:PrintWriter?=null
-    var outFromServer:PrintWriter?=null
+    var outFromServer:PrintWriter?=null //this should be many corresponding to each port
     private var clientSendButtonOnClickListener=object: View.OnClickListener
     {
 
@@ -107,15 +107,18 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
         if (WifiService.isWifiOn(context))
         {
-            ConnectToServerSocket(5001)
+            ConnectToServerSocket(5001) //outFromClient always 5001
         }
 
         if (WifiService.isHotspotOn(context))
         {
-            var temporaryPort2=5005 //get this temporary port by looping
+//            var temporaryPort2=5004 //get this temporary port by looping
+            var temporaryPort2=5123
             Log.i("mytag","receiver ip is ${receiverIP.toString()} and temporary port is $temporaryPort2")
-            ConnectToServerSocketHostedByEachClient("192.168.43.195",temporaryPort2)
+//            ConnectToServerSocketHostedByEachClient("192.168.43.195",temporaryPort2) //client ip with client port
+            ConnectToServerSocketHostedByEachClient("192.168.43.76",temporaryPort2)
             //replace this host by receiveIP and run in a loop each device per port
+//            ConnectToServerSocketHostedByEachClient("192.168.43.76",5004)
         }
 
 
@@ -209,6 +212,10 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
 
 
+
+
+
+
     fun readContent(reader:BufferedReader,newSocket: Socket)
     {
 
@@ -229,6 +236,10 @@ class MessagingFragment:android.support.v4.app.Fragment()
         }).start()
 
     }
+
+
+
+
 
 
     fun setAdaptersAndOnClickListeners()

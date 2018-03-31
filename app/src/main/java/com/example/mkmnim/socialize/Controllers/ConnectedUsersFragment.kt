@@ -47,15 +47,22 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
         if (WifiService.isHotspotOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
         {
-            ConnectToClientSocket(5001)
+            ConnectToClientSocket(5001) //writing to server
 
         }
 
         if (WifiService.isWifiOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
         {
-            var temporaryPort=5005   //receive the port by requesting from Port page
+//            var temporaryPort=5004   //receive the port by requesting from Port page
+            var temporaryPort=5123
             Log.i("mytag","inConnected User fragment Change temporary port by requesting from port page")
             CreateServerHostWithDifferentPorts(temporaryPort)
+
+            /////////////////
+
+            //////////////////
+
+
         }
 
         CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE=true
