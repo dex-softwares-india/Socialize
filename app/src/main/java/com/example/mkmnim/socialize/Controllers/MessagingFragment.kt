@@ -112,8 +112,10 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
         if (WifiService.isHotspotOn(context))
         {
-            var temporaryPort2=5005
+            var temporaryPort2=5005 //get this temporary port by looping
+            Log.i("mytag","receiver ip is ${receiverIP.toString()} and temporary port is $temporaryPort2")
             ConnectToServerSocketHostedByEachClient("192.168.43.195",temporaryPort2)
+            //replace this host by receiveIP and run in a loop each device per port
         }
 
 
@@ -122,19 +124,26 @@ class MessagingFragment:android.support.v4.app.Fragment()
     }
 
 
-    fun ConnectToClientSocket(port:Int) //5001 server mobile accepting (that is whose hotspot is on)
-    {
-        Log.i("mytag","ConnectToClientSocket")
-        var serverSocket= ServerSocket(port)
 
+    fun ConnectToServerSocketHostedByEachClient(host:String,port:Int)  //receiver mobile (that is whose hotspot is on)
+    {
+
+        Log.i("mytag","CoonecttoServerSocketHostedByeachClient")
         Thread(Runnable {
-            while (true)
+            try
             {
-                var newSocket=serverSocket.accept()
-                var reader= BufferedReader(InputStreamReader(newSocket.getInputStream()))
-                readContent(reader,newSocket)
+                val socket = Socket(host, port)  //use 1 instead of 76 -  -  - host ip for testing using 192.168.43.76
+                outFromServer = PrintWriter(socket.getOutputStream())
+
             }
+            catch (ex:Exception)
+            {
+                Log.i("mytag",ex.message.toString()+"in ConnectToServerSocketHostedByEachClient")
+            }
+
         }).start()
+
+
     }
 
 
@@ -161,7 +170,6 @@ class MessagingFragment:android.support.v4.app.Fragment()
         }
 
 
-
     fun CreateServerHostWithDifferentPorts(port:Int)  //client (whose wifi is on) port from homepage
     {
         Log.i("mytag","CreateServerHostWithDifferentPorts")
@@ -178,26 +186,23 @@ class MessagingFragment:android.support.v4.app.Fragment()
     }
 
 
-    fun ConnectToServerSocketHostedByEachClient(host:String,port:Int)  //receiver mobile (that is whose hotspot is on)
+    fun ConnectToClientSocket(port:Int) //5001 server mobile accepting (that is whose hotspot is on)
     {
+        Log.i("mytag","ConnectToClientSocket")
+        var serverSocket= ServerSocket(port)
 
-        Log.i("mytag","CoonecttoServerSocketHostedByeachClient")
         Thread(Runnable {
-            try
+            while (true)
             {
-                val socket = Socket(host, port)  //use 1 instead of 76 -  -  - host ip for testing using 192.168.43.76
-                outFromServer = PrintWriter(socket.getOutputStream())
-
+                var newSocket=serverSocket.accept()
+                var reader= BufferedReader(InputStreamReader(newSocket.getInputStream()))
+                readContent(reader,newSocket)
             }
-            catch (ex:Exception)
-            {
-                Log.i("mytag",ex.message.toString()+"in ConnectToServerSocketHostedByEachClient")
-            }
-
         }).start()
-
-
     }
+
+
+
 
 
 
@@ -253,7 +258,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
     {
         val transaction = fragmentManager.beginTransaction()
         transaction.replace(R.id.frame_container, someFragment)
-        transaction.addToBackStack(null)
+//        transaction.addToBackStack(null)
         transaction.commit()
     }
     private fun hideKeyboardFromMessageInputScreen()

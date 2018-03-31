@@ -7,3 +7,4 @@ var HOTSPOT_ON = false
 var WIFI_ON= false
 var UNIQUE_CLIENTS_SET= mapOf<String,String>()
 var NO_OF_CLIENTS=0
+var CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE=false

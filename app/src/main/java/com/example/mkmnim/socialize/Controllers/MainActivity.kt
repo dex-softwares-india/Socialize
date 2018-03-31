@@ -71,7 +71,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-
         nav_view.setNavigationItemSelectedListener(this)
     }
 
@@ -202,16 +201,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_chat ->
             {
 
-                selectedFragment=ConnectedUsersFragment()
+//                selectedFragment=ConnectedUsersFragment()
 
             }
             R.id.nav_main ->
             {
-                selectedFragment=MainFragment()
+//                selectedFragment=MainFragment()
             }
             R.id.nav_slideshow ->
             {
-                selectedFragment=MessagingFragment()
+//                selectedFragment=MessagingFragment()
             }
             R.id.nav_manage ->
             {
@@ -219,7 +218,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_share ->
             {
-
+                val sendIntent = Intent()
+                sendIntent.action = Intent.ACTION_SEND
+                sendIntent.putExtra(Intent.EXTRA_TEXT,
+                        "Hey check out my app at: https://play.google.com/store/apps/details?id=com.example.mkmnim.socialize")
+                sendIntent.type = "text/plain"
+                startActivity(sendIntent)
             }
             R.id.nav_send ->
             {
