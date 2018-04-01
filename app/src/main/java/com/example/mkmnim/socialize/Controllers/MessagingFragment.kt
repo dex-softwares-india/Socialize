@@ -35,7 +35,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
         override fun onClick(v: View?)
         {
             Log.i("mytag","Client Send btn")
-            messages.add(Message(myView!!.messageEditText.text.toString(),"You"))
+            messages.add(Message(myView!!.messageEditText.text.toString(),"You",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
             val messageText=myView!!.messageEditText.text.toString()
             Thread(Runnable {
                 val jsonObject=JSONObject()
@@ -56,7 +56,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
         override fun onClick(v: View?)
         {
             Log.i("mytag","Host Send btn")
-            messages.add(Message(myView!!.messageEditText.text.toString(),"You"))
+            messages.add(Message(myView!!.messageEditText.text.toString(),"You",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
             val messageText=myView!!.messageEditText.text.toString()
             Thread(Runnable {
                 val jsonObject=JSONObject()
@@ -82,8 +82,9 @@ class MessagingFragment:android.support.v4.app.Fragment()
     {
         myView = inflater?.inflate(R.layout.fragment_messaging, container, false)
 
-        messages.add(Message("awwlele hello bhai", "You"))
-        messages.add(Message("kaisa hai hello bhai", "Palku"))
+
+        messages.add(Message("awwlele hello bhai", "You",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
+        messages.add(Message("kaisa hai hello bhai", "Palku",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
 
 
         setAdaptersAndOnClickListeners()
@@ -123,10 +124,8 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
             ConnectToServerSocketHostedByEachClient("192.168.43.195",5004)//5004 of micromax
             ConnectToServerSocketHostedByEachClient("192.168.43.76",temporaryPort2)
+            //loop through all the connected devices
 
-
-            //replace this host by receiveIP and run in a loop each device per port
-//            ConnectToServerSocketHostedByEachClient("192.168.43.76",5004)
         }
 
 
@@ -237,7 +236,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
                 }
                 println(messageContent)
                 activity.runOnUiThread{
-                    messages.add(Message(messageContent,"You"))
+                    messages.add(Message(messageContent,"You",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
                     myMessageAdapter.notifyDataSetChanged()
                 }
             }
