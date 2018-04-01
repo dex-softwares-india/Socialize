@@ -56,7 +56,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         values.put(KEY_MESSAGE_CONTENT, message.getMessage()); //
         values.put(KEY_FROM, message.getFrom()); //
         values.put(KEY_TO,message.getReceiver());
-        values.put(KEY_ID,getContactsCount()+1);
+        values.put(KEY_ID, getMessagesCount()+1);
 
         // Inserting Row
         db.insert(TABLE_MESSAGES, null, values);
@@ -65,7 +65,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 //        db.close(); // Closing database connection
     }
 
-    public int getContactsCount()
+    public int getMessagesCount()
     {
         String countQuery = "SELECT  * FROM " + TABLE_MESSAGES;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -76,7 +76,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return cursor.getCount();
     }
 
-    public List<Message> getAllContacts()
+    public List<Message> getAllMessages()
     {
         List<Message> messageList = new ArrayList<Message>();
         // Select All Query
@@ -90,8 +90,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
             do {
                 Message message = new Message(
                         cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getString(3)
+                        cursor.getString(3),
+                        cursor.getString(2)
                 );
 
                 // Adding message to list
@@ -101,6 +101,12 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         // return contact list
         return messageList;
+    }
+
+    public void deleteAllMessages()
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from "+ TABLE_MESSAGES);
     }
 
 }

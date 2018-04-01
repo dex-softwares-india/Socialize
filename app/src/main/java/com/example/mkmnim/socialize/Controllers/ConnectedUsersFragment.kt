@@ -16,9 +16,9 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.ServerSocket
 import java.net.Socket
-import com.example.mkmnim.socialize.Databases.DatabaseHandler
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
+import org.json.JSONObject
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
@@ -39,6 +39,10 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
             myView!!.chatListView.onItemClickListener=this@ConnectedUsersFragment
 
         }
+        myView!!.dataClear.setOnClickListener {
+            DATABASE_HANDLER!!.deleteAllMessages()
+        }
+
 
         if (WifiService.isHotspotOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
         {
@@ -110,8 +114,15 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                     var port=newSocket.localPort.toString()
                     var from=newSocket.inetAddress.toString()
                     var to=newSocket.localAddress.toString()
-                    DATABASE_HANDLER?.addMessage(Message(messageContent.toString(),to,from))
-                    Log.i("mytag","Contact Count : "+DATABASE_HANDLER!!.contactsCount.toString())
+                    DATABASE_HANDLER?.addMessage(Message(JSONObject(messageContent)["messageContent"].toString(),JSONObject(messageContent)["to"].toString(),JSONObject(messageContent)["from"].toString()))
+
+                    Log.i("mytag","Contact Count : "+DATABASE_HANDLER!!.messagesCount.toString())
+
+                    for (i in DATABASE_HANDLER!!.allMessages)
+                    {
+                        Log.i("mytag",i.message.toString()+" from:"+i.from.toString()+" to "+i.receiver.toString())
+                    }
+
                 }
 
             }
