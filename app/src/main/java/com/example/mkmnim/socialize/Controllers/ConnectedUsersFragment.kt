@@ -19,6 +19,7 @@ import java.net.Socket
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
 import org.json.JSONObject
+import java.io.PrintWriter
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
@@ -56,7 +57,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
             var temporaryPort=5004 //for micromax instead of 5123
             Log.i("mytag","inConnected User fragment Change temporary port by requesting from port page")
             CreateServerHostWithDifferentPorts(temporaryPort)
-
+            //for each device only one statement
 
         }
 
@@ -111,17 +112,63 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                 activity.runOnUiThread {
                     Toast.makeText(context, messageContent.toString(), Toast.LENGTH_LONG).show()
                     Log.i("mytag","readContent in ConnectedUserFragment")
-                    var port=newSocket.localPort.toString()
-                    var from=newSocket.inetAddress.toString()
-                    var to=newSocket.localAddress.toString()
-                    DATABASE_HANDLER?.addMessage(Message(JSONObject(messageContent)["messageContent"].toString(),JSONObject(messageContent)["to"].toString(),JSONObject(messageContent)["from"].toString()))
+
+                    var messageContentText=JSONObject(messageContent)["messageContent"].toString()
+                    var to=JSONObject(messageContent)["to"].toString()
+                    var from=JSONObject(messageContent)["from"].toString()
+
+
+
+                    Log.i("mytag","send to $to from $from")
+
+                    if (WifiService.isWifiOn(context))
+                    {
+                        DATABASE_HANDLER?.addMessage(Message(messageContentText,to,from))
+                    }
+
+                    if (WifiService.isHotspotOn(context))
+                    {
+//                        Log.i("mytag","send to $to from $from")
+//                        if self ip
+                        if (to=="192.168.43.1") //to==admin Ip
+                        {
+                            DATABASE_HANDLER?.addMessage(Message(messageContentText,to,from))
+                        }
+                        else
+                        {
+                            //send message to "to"
+                            Thread(Runnable {
+                                try
+                                {
+//                                    var port=getPortForToIp()  //port of receiver
+                                    val socket = Socket(to, 5123)//port of receiver
+                                    var outFromServer:PrintWriter? = PrintWriter(socket.getOutputStream())
+                                    outFromServer?.println(messageContent.toString())
+                                    outFromServer?.flush()
+                                }
+                                catch (ex:Exception)
+                                {
+                                    Log.i("mytag",ex.toString()+ex.message.toString()+"in Sending a message through admin")
+                                }
+
+                            }).start()
+
+                        }
+
+
+
+                    }
+
+
+
+
+                    //else
+                    //send messageContent to "to"
 
                     Log.i("mytag","Contact Count : "+DATABASE_HANDLER!!.messagesCount.toString())
 
-                    for (i in DATABASE_HANDLER!!.allMessages)
-                    {
-                        Log.i("mytag",i.message.toString()+" from:"+i.from.toString()+" to "+i.receiver.toString())
-                    }
+                    printAllMessages() //will print all messages linked to DATABASE_HANDLER
+
 
                 }
 
@@ -129,6 +176,15 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         }).start()
 
     }
+
+    fun printAllMessages()
+    {
+        for (i in DATABASE_HANDLER!!.allMessages)
+        {
+            Log.i("mytag",i.message.toString()+" from:"+i.from.toString()+" to "+i.receiver.toString())
+        }
+    }
+
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long)
     {

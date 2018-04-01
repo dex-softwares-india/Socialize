@@ -111,7 +111,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
         if (WifiService.isWifiOn(context))
         {
-            ConnectToServerSocket(5001) //outFromClient always 5001
+            connectToServerSocket(5001) //outFromClient always 5001
         }
 
         if (WifiService.isHotspotOn(context))
@@ -157,9 +157,9 @@ class MessagingFragment:android.support.v4.app.Fragment()
     }
 
 
-    fun ConnectToServerSocket(port:Int) //5001  //receiver mobile (that is whose wifi is on)
+    fun connectToServerSocket(port:Int) //5001  //receiver mobile (that is whose wifi is on)
     {
-        Log.i("mytag","ConnectToServerSocket")
+        Log.i("mytag","connectToServerSocket")
 
             Thread(Runnable {
                 try
@@ -171,7 +171,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
                 }
                 catch (ex:Exception)
                 {
-                    Log.i("mytag",ex.message.toString()+"in ConnectToServerSocket")
+                    Log.i("mytag",ex.message.toString()+"in connectToServerSocket")
                 }
 
             }).start()

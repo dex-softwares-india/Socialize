@@ -6,19 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Clear Data"
-        android:textSize="24sp"
-        tools:layout_editor_absoluteX="103dp"
-        tools:layout_editor_absoluteY="451dp" />
-
     <ListView
         android:id="@+id/chatListView"
         android:layout_width="368dp"
-        android:layout_height="513dp"
+        android:layout_height="478dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/dataClear"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,15 +22,12 @@
         android:id="@+id/searchDevices"
         android:layout_width="58dp"
         android:layout_height="52dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginTop="376dp"
+        android:layout_marginBottom="28dp"
+        android:layout_marginEnd="36dp"
         android:clickable="true"
         app:backgroundTint="@android:color/holo_red_dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.733"
         app:rippleColor="@android:color/holo_orange_light"
         app:srcCompat="@android:drawable/ic_menu_search" />
 
@@ -54,8 +42,25 @@
         android:imeActionLabel="Clear Data"
         app:layout_constraintBottom_toBottomOf="@+id/textView2"
         app:layout_constraintEnd_toStartOf="@+id/searchDevices"
-        app:layout_constraintHorizontal_bias="0.13"
+        app:layout_constraintHorizontal_bias="0.048"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView2"
-        app:layout_constraintVertical_bias="0.551" />
+        app:layout_constraintVertical_bias="0.621" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="419dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="24dp"
+        android:text="Clear Data"
+        android:textSize="24sp"
+        app:layout_constraintTop_toTopOf="@+id/guideline"
+        tools:layout_editor_absoluteX="88dp" />
 </android.support.constraint.ConstraintLayout>
