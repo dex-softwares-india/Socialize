@@ -16,6 +16,9 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.ServerSocket
 import java.net.Socket
+import com.example.mkmnim.socialize.Databases.DatabaseHandler
+import com.example.mkmnim.socialize.Models.Message
+import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
@@ -103,7 +106,14 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                 println(messageContent)
                 activity.runOnUiThread {
                     Toast.makeText(context, messageContent.toString(), Toast.LENGTH_LONG).show()
+                    Log.i("mytag","readContent in ConnectedUserFragment")
+                    var port=newSocket.localPort.toString()
+                    var from=newSocket.inetAddress.toString()
+                    var to=newSocket.localAddress.toString()
+                    DATABASE_HANDLER?.addMessage(Message(messageContent.toString(),to,from))
+                    Log.i("mytag","Contact Count : "+DATABASE_HANDLER!!.contactsCount.toString())
                 }
+
             }
         }).start()
 

@@ -35,7 +35,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
         override fun onClick(v: View?)
         {
             Log.i("mytag","Client Send btn")
-            messages.add(Message(myView!!.messageEditText.text.toString(),"You",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
+            messages.add(Message(myView!!.messageEditText.text.toString(), "You", WifiService.getIpAddress192type().toString()))
             val messageText=myView!!.messageEditText.text.toString()
             Thread(Runnable {
                 val jsonObject=JSONObject()
@@ -56,7 +56,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
         override fun onClick(v: View?)
         {
             Log.i("mytag","Host Send btn")
-            messages.add(Message(myView!!.messageEditText.text.toString(),"You",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
+            messages.add(Message(myView!!.messageEditText.text.toString(), "You", WifiService.getIpAddress192type().toString()))
             val messageText=myView!!.messageEditText.text.toString()
             Thread(Runnable {
                 val jsonObject=JSONObject()
@@ -83,8 +83,8 @@ class MessagingFragment:android.support.v4.app.Fragment()
         myView = inflater?.inflate(R.layout.fragment_messaging, container, false)
 
 
-        messages.add(Message("awwlele hello bhai", "You",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
-        messages.add(Message("kaisa hai hello bhai", "Palku",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
+        messages.add(Message("awwlele hello bhai", "You", WifiService.getIpAddress192type().toString()))
+        messages.add(Message("kaisa hai hello bhai", "Palku", WifiService.getIpAddress192type().toString()))
 
 
         setAdaptersAndOnClickListeners()
@@ -236,7 +236,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
                 }
                 println(messageContent)
                 activity.runOnUiThread{
-                    messages.add(Message(messageContent,"You",WifiService.getIpAddress192type().toString(),receiverIP.toString()))
+                    messages.add(Message(messageContent, "You", WifiService.getIpAddress192type().toString()))
                     myMessageAdapter.notifyDataSetChanged()
                 }
             }

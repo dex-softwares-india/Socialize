@@ -1,4 +1,4 @@
 package com.example.mkmnim.socialize.Models
 
 
-class Message constructor(var message:String,var sender:String,var from:String,var to:String)
+class Message (var message: String, var receiver: String, var from: String)

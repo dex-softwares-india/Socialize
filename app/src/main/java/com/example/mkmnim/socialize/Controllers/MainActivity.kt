@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import com.example.mkmnim.socialize.Databases.DatabaseHandler
 
 
 //DISCOVER_CLIENTS WILL BE TRUE WHEN HOTSPOT IS ON
@@ -79,11 +80,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 /*Initial fragment added as well*/
+/*Database Handler added as well*/
+
     fun setUpConstants()
     {
     DISCOVER_CLIENTS = WifiService.isHotspotOn(this@MainActivity)
     HOTSPOT_ON = WifiService.isHotspotOn(this@MainActivity)
     WIFI_ON = WifiService.isWifiOn(this@MainActivity)
+    DATABASE_HANDLER = DatabaseHandler(this@MainActivity)
+
 
     var fragment=MainFragment() as android.support.v4.app.Fragment
     var fragmentManager = getSupportFragmentManager()
