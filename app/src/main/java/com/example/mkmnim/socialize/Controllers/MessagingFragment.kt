@@ -269,9 +269,6 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
 
 
-
-
-
     fun replaceFragment(someFragment: android.support.v4.app.Fragment)
     {
         val transaction = fragmentManager.beginTransaction()

@@ -17,6 +17,10 @@ import java.io.InputStreamReader
 import java.net.ServerSocket
 import java.net.Socket
 import com.example.mkmnim.socialize.Models.Message
+import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
+import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTaskWithCallback
+import com.example.mkmnim.socialize.RequestClass.VolleyCallBack
+import com.example.mkmnim.socialize.RequestClass.VolleyService
 import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
 import org.json.JSONObject
 import java.io.PrintWriter
@@ -28,6 +32,33 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
     lateinit var connectedDevices: ArrayList<String>
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
+    {
+        getViewSetListenersAdapters(inflater,container,savedInstanceState)
+
+
+        if (WifiService.isHotspotOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
+        {
+            ConnectToClientSocket(5001) //writing to server
+
+        }
+
+        if (WifiService.isWifiOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE) //edit to receive port from portpage
+        {
+//            var temporaryPort=5004   //receive the port by requesting from Port page
+            var temporaryPort=5004 //for micromax instead of 5123
+            Log.i("mytag","inConnected User fragment Change temporary port by requesting from port page")
+            CreateServerHostWithDifferentPorts(temporaryPort)
+            //for each device only one statement
+
+        }
+
+        CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE=true
+
+
+        return myView!!
+    }
+
+    fun getViewSetListenersAdapters(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?)
     {
         myView = inflater?.inflate(R.layout.fragment_chat, container, false)
         connectedDevices = WifiService.getConnectedDevices(context)
@@ -43,28 +74,6 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         myView!!.dataClear.setOnClickListener {
             DATABASE_HANDLER!!.deleteAllMessages()
         }
-
-
-        if (WifiService.isHotspotOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
-        {
-            ConnectToClientSocket(5001) //writing to server
-
-        }
-
-        if (WifiService.isWifiOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
-        {
-//            var temporaryPort=5004   //receive the port by requesting from Port page
-            var temporaryPort=5004 //for micromax instead of 5123
-            Log.i("mytag","inConnected User fragment Change temporary port by requesting from port page")
-            CreateServerHostWithDifferentPorts(temporaryPort)
-            //for each device only one statement
-
-        }
-
-        CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE=true
-
-
-        return myView!!
     }
 
     fun ConnectToClientSocket(port: Int) //5001 server mobile accepting (that is whose hotspot is on)
@@ -128,7 +137,6 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
                     if (WifiService.isHotspotOn(context))
                     {
-//                        Log.i("mytag","send to $to from $from")
 //                        if self ip
                         if (to=="192.168.43.1") //to==admin Ip
                         {
@@ -140,8 +148,8 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                             Thread(Runnable {
                                 try
                                 {
-//                                    var port=getPortForToIp()  //port of receiver
-                                    val socket = Socket(to, 5123)//port of receiver
+                                    var port=getPortForToIp(to)  //port of receiver
+                                    val socket = Socket(to, 5004)//above port of receiver
                                     var outFromServer:PrintWriter? = PrintWriter(socket.getOutputStream())
                                     outFromServer?.println(messageContent.toString())
                                     outFromServer?.flush()
@@ -160,11 +168,6 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                     }
 
 
-
-
-                    //else
-                    //send messageContent to "to"
-
                     Log.i("mytag","Contact Count : "+DATABASE_HANDLER!!.messagesCount.toString())
 
                     printAllMessages() //will print all messages linked to DATABASE_HANDLER
@@ -177,6 +180,8 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
     }
 
+
+
     fun printAllMessages()
     {
         for (i in DATABASE_HANDLER!!.allMessages)
@@ -185,6 +190,47 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         }
     }
 
+    public fun getPortForToIp(to:String):String    //returns None or port no
+    {
+        var requestString="http://"+to+":5000/portno"
+        var port:String=""  //possible values ["",None,port no]
+        var volleyCallBack=object:VolleyCallBack
+        {
+            override fun onSuccess(result: String)
+            {
+                Log.i("mytag","result is $result from callback")
+                if (result!="failed")
+                {
+                    port=JSONObject(result)["port"].toString()
+
+                }
+                else if (result=="failed")
+                {
+                    port="None"
+                }
+
+            }
+        }
+//        var port=GETRequestAsyncTask(context).execute(requestString).get()
+        VolleyService.getPort(requestString,context,volleyCallBack)
+        {
+           Log.i("mytag","post find port in volleyService")
+
+        }
+
+
+        while(true)
+        {
+            Log.i("mytag", "stuck in loop volley port")
+            if (port != "")
+            {
+                Log.i("mytag","answerFromPortForIp is $port")
+                break
+            }
+        }
+        return port.toString()
+
+    }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long)
     {
@@ -205,6 +251,5 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         transaction.addToBackStack(null)
         transaction.commit()
     }
-
 
 }

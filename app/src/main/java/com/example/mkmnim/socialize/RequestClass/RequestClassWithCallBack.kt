@@ -9,8 +9,9 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 
 
-class GETRequestAsyncTask(context:Context):AsyncTask<String,Int,String>()
+class GETRequestAsyncTaskWithCallback(context:Context,callBack: VolleyCallBack):AsyncTask<String,Int,String>()
 {
+    var callback=callBack
     var context=context
     override fun doInBackground(vararg params: String?): String?
     {
@@ -20,11 +21,12 @@ class GETRequestAsyncTask(context:Context):AsyncTask<String,Int,String>()
             response ->
             myResponse=response.toString()
             Log.i("mytag",myResponse)
+            callback.onSuccess(myResponse.toString())
 
         },Response.ErrorListener {error->
             myResponse=""
             Log.i("mytag",error.toString())
-
+            callback.onSuccess("failed")
         }
         )
         {
