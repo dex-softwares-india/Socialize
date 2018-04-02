@@ -14,8 +14,8 @@ object VolleyService
 {
     fun getPort(url:String,context: Context, callBack: VolleyCallBack, complete: (Boolean) -> Unit)
     {
-
-        val registerRequest = object : StringRequest(Method.GET, url, Response.Listener { response ->
+        Log.i("mytag","i am in getPort")
+        var registerRequest = object : StringRequest(Method.GET, url, Response.Listener { response ->
             Log.i("mytag","response is "+response.toString())
             callBack.onSuccess(response.toString())
             complete(true)
@@ -26,7 +26,10 @@ object VolleyService
 
         })
 
-        {}
+        {
+
+        }
+
         Volley.newRequestQueue(context).add(registerRequest)
     }
 }

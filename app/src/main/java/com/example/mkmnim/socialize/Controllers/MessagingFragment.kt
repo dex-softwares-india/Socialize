@@ -1,6 +1,7 @@
 package com.example.mkmnim.socialize.Controllers
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,7 +11,11 @@ import android.view.inputmethod.InputMethodManager
 import com.example.mkmnim.socialize.Adapters.MessageAdapter
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
+import com.example.mkmnim.socialize.RequestClass.VolleyCallBack
 import com.example.mkmnim.socialize.Utilities.WifiService
+import com.koushikdutta.async.http.AsyncHttpClient
+import com.koushikdutta.async.http.AsyncHttpRequest
+import com.koushikdutta.async.http.AsyncHttpResponse
 import kotlinx.android.synthetic.main.fragment_messaging.view.*
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -122,8 +127,23 @@ class MessagingFragment:android.support.v4.app.Fragment()
 //            ConnectToServerSocketHostedByEachClient("192.168.43.195",temporaryPort2) //client ip with client port
 
 
-            ConnectToServerSocketHostedByEachClient("192.168.43.195",5004)//5004 of micromax
-            ConnectToServerSocketHostedByEachClient("192.168.43.76",temporaryPort2)
+            for (i in listOf<String>("192.168.43.195","192.168.43.76")) //these are connected devices
+            {
+                Thread(Runnable {
+                    var myPort = getPortForToIp(i)
+                    try
+                    {
+                        ConnectToServerSocketHostedByEachClient(i, Integer.parseInt(myPort))//5004 of micromax
+                    }
+                    catch (ex: Exception)
+                    {
+                        Log.i("mytag", ex.message.toString() + "in ConnectToServerSocketHostedByEachClient for " + i.toString())
+                    }
+                }).start()
+            }
+
+//            ConnectToServerSocketHostedByEachClient("192.168.43.195",5004)//5004 of micromax
+//            ConnectToServerSocketHostedByEachClient("192.168.43.76",temporaryPort2)
             //loop through all the connected devices
 
         }
@@ -265,7 +285,67 @@ class MessagingFragment:android.support.v4.app.Fragment()
     }
 
 
+    public fun getPortForToIp(to:String):String    //returns None or port no
+    {
+        var requestString="http://"+to+":5000/portno"
+        Log.i("mytag","request string is $requestString")
+        var port:String=""  //possible values ["",None,port no]
+        var volleyCallBack=object: VolleyCallBack
+        {
+            override fun onSuccess(result: String)
+            {
+                Log.i("mytag","result is $result from callback")
+                if (result!="failed")
+                {
+                    port=JSONObject(result)["port"].toString()
 
+                }
+                else if (result=="failed")
+                {
+                    port="None"
+                }
+                Log.i("mytag","result is $result")
+
+            }
+        }
+//        VolleyService.getPort(requestString,context,volleyCallBack)
+//        {
+//           Log.i("mytag","post find port in volleyService")
+//
+//        }
+
+        AsyncHttpClient.getDefaultInstance().executeJSONObject(AsyncHttpRequest(Uri.parse(requestString),"GET"), object : AsyncHttpClient.JSONObjectCallback()
+        {
+            override fun onCompleted(e: java.lang.Exception?, source: AsyncHttpResponse?, result: JSONObject?)
+            {
+                if (e != null)
+                {
+                    Log.i("mytag",e.message.toString())
+                    return
+                }
+                Log.i("mytag","I got a string: ${result.toString()}")
+                port=JSONObject(result.toString())["port"].toString()
+            }
+        })
+
+
+        while(true)
+        {
+
+            Log.i("mytag", "stuck in looping volley port")
+            Log.i("mytag","port is $port")
+
+
+            if (port != "")
+            {
+                Log.i("mytag","answerFromPortForIp is $port while looking $requestString")
+                break
+            }
+        }
+//        return 1234.toString()
+        return port.toString()
+
+    }
 
 
 

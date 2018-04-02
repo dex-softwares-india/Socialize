@@ -1,6 +1,8 @@
 package com.example.mkmnim.socialize.Controllers
 
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,22 +10,21 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.Utilities.CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE
+import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
 import com.example.mkmnim.socialize.Utilities.WifiService
+import com.koushikdutta.async.http.AsyncHttpClient
+import com.koushikdutta.async.http.AsyncHttpRequest
+import com.koushikdutta.async.http.AsyncHttpResponse
 import kotlinx.android.synthetic.main.fragment_chat.view.*
+import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
-import com.example.mkmnim.socialize.Models.Message
-import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTask
-import com.example.mkmnim.socialize.RequestClass.GETRequestAsyncTaskWithCallback
-import com.example.mkmnim.socialize.RequestClass.VolleyCallBack
-import com.example.mkmnim.socialize.RequestClass.VolleyService
-import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
-import org.json.JSONObject
-import java.io.PrintWriter
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
@@ -45,11 +46,21 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         if (WifiService.isWifiOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE) //edit to receive port from portpage
         {
 //            var temporaryPort=5004   //receive the port by requesting from Port page
-            var temporaryPort=5004 //for micromax instead of 5123
-            Log.i("mytag","inConnected User fragment Change temporary port by requesting from port page")
-            CreateServerHostWithDifferentPorts(temporaryPort)
-            //for each device only one statement
+//            var temporaryPort=5004 //for micromax instead of 5123
 
+            Handler().postDelayed(Runnable {
+                Log.i("mytag", WifiService.getIpAddress192type().toString()+"in ConnectedHandler")
+                var temporaryPort: String = getPortForToIp(WifiService.getIpAddress192type().toString())
+
+                Log.i("mytag", "inConnected User fragment Change temporary port by requesting from port page")
+
+                if (temporaryPort != "None")
+                {
+                    Log.i("mytag", "creating my host at" + temporaryPort.toString())
+                    CreateServerHostWithDifferentPorts(Integer.parseInt(temporaryPort))
+                }
+                //for each device only one statement
+            },2000)
         }
 
         CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE=true
@@ -148,11 +159,16 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                             Thread(Runnable {
                                 try
                                 {
-                                    var port=getPortForToIp(to)  //port of receiver
-                                    val socket = Socket(to, 5004)//above port of receiver
-                                    var outFromServer:PrintWriter? = PrintWriter(socket.getOutputStream())
-                                    outFromServer?.println(messageContent.toString())
-                                    outFromServer?.flush()
+                                    var port = getPortForToIp(to)  //port of receiver
+
+//                                    val socket = Socket(to, 5004)//above port of receiver
+                                    if (port != "None")
+                                    {
+                                        val socket = Socket(to, Integer.parseInt(port))
+                                        var outFromServer: PrintWriter? = PrintWriter(socket.getOutputStream())
+                                        outFromServer?.println(messageContent.toString())
+                                        outFromServer?.flush()
+                                    }
                                 }
                                 catch (ex:Exception)
                                 {
@@ -190,44 +206,65 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         }
     }
 
+
     public fun getPortForToIp(to:String):String    //returns None or port no
     {
         var requestString="http://"+to+":5000/portno"
+        Log.i("mytag","request string is $requestString")
         var port:String=""  //possible values ["",None,port no]
-        var volleyCallBack=object:VolleyCallBack
+//        var volleyCallBack=object:VolleyCallBack
+//        {
+//            override fun onSuccess(result: String)
+//            {
+//                Log.i("mytag","result is $result from callback")
+//                if (result!="failed")
+//                {
+//                    port=JSONObject(result)["port"].toString()
+//
+//                }
+//                else if (result=="failed")
+//                {
+//                    port="None"
+//                }
+//                Log.i("mytag","result is $result")
+//
+//            }
+//        }
+//        VolleyService.getPort(requestString,context,volleyCallBack)
+//        {
+//           Log.i("mytag","post find port in volleyService")
+//
+//        }
+
+        AsyncHttpClient.getDefaultInstance().executeJSONObject(AsyncHttpRequest(Uri.parse(requestString),"GET"), object : AsyncHttpClient.JSONObjectCallback()
         {
-            override fun onSuccess(result: String)
+            override fun onCompleted(e: java.lang.Exception?, source: AsyncHttpResponse?, result: JSONObject?)
             {
-                Log.i("mytag","result is $result from callback")
-                if (result!="failed")
+                if (e != null)
                 {
-                    port=JSONObject(result)["port"].toString()
-
+                    Log.i("mytag",e.message.toString())
+                    return
                 }
-                else if (result=="failed")
-                {
-                    port="None"
-                }
-
+                Log.i("mytag","I got a string: ${result.toString()}")
+                port=JSONObject(result.toString())["port"].toString()
             }
-        }
-//        var port=GETRequestAsyncTask(context).execute(requestString).get()
-        VolleyService.getPort(requestString,context,volleyCallBack)
-        {
-           Log.i("mytag","post find port in volleyService")
-
-        }
+        })
 
 
         while(true)
         {
-            Log.i("mytag", "stuck in loop volley port")
+
+            Log.i("mytag", "stuck in looping volley port")
+            Log.i("mytag","port is $port")
+
+
             if (port != "")
             {
-                Log.i("mytag","answerFromPortForIp is $port")
+                Log.i("mytag","answerFromPortForIp is $port while looking $requestString")
                 break
             }
         }
+//        return 1234.toString()
         return port.toString()
 
     }

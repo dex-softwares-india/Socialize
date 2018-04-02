@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +40,7 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
                 PageCreator.createPortPage()
                 myView!!.progressBar.visibility=View.INVISIBLE
                 PageCreator.server?.listen(5000)
+                Log.i("mytag","all pages created")
 
             },1000)
         }
@@ -52,6 +54,7 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
                 PageCreator.createAllConnectedDevices(context)
                 PageCreator.createOnlyConnectedDevices1(context)
                 PageCreator.server?.listen(5000)
+                Log.i("mytag","all pages created")
 
                 myView!!.progressBar.visibility=View.INVISIBLE
 

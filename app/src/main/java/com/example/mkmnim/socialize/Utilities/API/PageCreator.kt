@@ -23,6 +23,7 @@ This file is used tp create web page based api
 object PageCreator
 {
     var server:AsyncHttpServer?=null
+    var myport=(5002+(100*Random().nextFloat())).toInt()
     fun createHomePage(context: Context,name:String,serviceName:String)
     {
 
@@ -232,9 +233,10 @@ object PageCreator
         {
             override fun onRequest(request: AsyncHttpServerRequest, response: AsyncHttpServerResponse)
             {
-                var randomInt=Random().nextFloat()
-                jsonObject.put("port",(5002+(100*randomInt)).toInt())
+
+                jsonObject.put("port", myport)
                 response.send(jsonObject)
+                Log.i("mytag","creating port page")
             }
 
         })
