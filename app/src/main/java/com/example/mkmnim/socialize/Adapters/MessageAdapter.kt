@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
+import com.example.mkmnim.socialize.Utilities.WifiService
 import kotlinx.android.synthetic.main.message_receiver.view.*
 import kotlinx.android.synthetic.main.message_sender.view.*
 
@@ -37,7 +38,7 @@ class MessageAdapter(context:Context,messageList:List<Message>):BaseAdapter()
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View
     {
         var view: View
-        if (messageList[position].receiver == "You")
+        if (messageList[position].receiver == WifiService.getIpAddress192type()?.toString())
         {
             view = LayoutInflater.from(context).inflate(R.layout.message_sender, null)
             view.UsernameSender.text = messageList[position].receiver

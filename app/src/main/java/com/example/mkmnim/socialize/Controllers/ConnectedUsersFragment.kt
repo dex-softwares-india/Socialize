@@ -30,6 +30,7 @@ import java.net.Socket
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
 {
     var myView: View? = null
+    var initiateMessagingFragment:MessagingFragment?=null
     lateinit var connectedDevices: ArrayList<String>
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
@@ -40,7 +41,6 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         if (WifiService.isHotspotOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
         {
             ConnectToClientSocket(5001) //writing to server
-
         }
 
         if (WifiService.isWifiOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE) //edit to receive port from portpage
@@ -143,14 +143,19 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
                     if (WifiService.isWifiOn(context))
                     {
+                        initiateMessagingFragment?.messages?.add(Message(messageContentText,to,from))
+                        initiateMessagingFragment?.myMessageAdapter?.notifyDataSetChanged()
                         DATABASE_HANDLER?.addMessage(Message(messageContentText,to,from))
                     }
 
                     if (WifiService.isHotspotOn(context))
                     {
 //                        if self ip
+                        Log.i("tag1","to is"+ to.toString()+"p")
                         if (to=="192.168.43.1") //to==admin Ip
                         {
+                            initiateMessagingFragment?.messages?.add(Message(messageContentText,to,from))
+                            initiateMessagingFragment?.myMessageAdapter?.notifyDataSetChanged()
                             DATABASE_HANDLER?.addMessage(Message(messageContentText,to,from))
                         }
                         else
@@ -271,14 +276,14 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long)
     {
-        var initiateMessagingFragment = MessagingFragment()
+        initiateMessagingFragment = MessagingFragment()
         var args = Bundle()
 
         args.putInt("position", position)
         args.putStringArrayList("devices", connectedDevices)
 
-        initiateMessagingFragment.arguments = args
-        replaceFragment(initiateMessagingFragment)
+        initiateMessagingFragment!!.arguments = args
+        replaceFragment(initiateMessagingFragment!!)
     }
 
     fun replaceFragment(someFragment: android.support.v4.app.Fragment)

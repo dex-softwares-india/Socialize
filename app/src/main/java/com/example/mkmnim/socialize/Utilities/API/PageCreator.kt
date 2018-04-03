@@ -119,16 +119,26 @@ object PageCreator
                             Response.Listener { volleyresponse ->
                                 ctr += 1
                                 myResponse = volleyresponse.toString()
-                                var myJsonResponse=JSONObject(myResponse)["name"]
-
-                                if (myResponse != "")
+                                Log.i("mytag","response is $myResponse")
+                                try
                                 {
-                                    Log.i("mytag", myJsonResponse.toString())
-                                    answerList.add(url + ",${myJsonResponse.toString()}")
+                                    var myJsonResponse = JSONObject(myResponse)["name"]
+
+                                    if (myResponse != "")
+                                    {
+                                        Log.i("mytag", myJsonResponse.toString())
+                                        answerList.add(url + ",${myJsonResponse.toString()}")
+                                    }
                                 }
+                                catch(ex:Exception)
+                                {
+                                    Log.i("mytag",ex.message.toString()+"in PageCreator")
+                                }
+
+
                                 if (ctr == listOfAlltimeConnectedDevices.size)
                                 {
-                                    jsonObject.put("Connected Users:", answerList)
+                                    jsonObject.put("AppUsers", answerList)
                                     response.send(jsonObject)
 
                                 }
@@ -140,7 +150,7 @@ object PageCreator
                                 Log.i("mytag", error.toString())
                                 if (ctr == listOfAlltimeConnectedDevices.size)
                                 {
-                                    jsonObject.put("Connected Users:", answerList)
+                                    jsonObject.put("AppUsers", answerList)
                                     response.send(jsonObject)
 
                                 }
@@ -150,7 +160,6 @@ object PageCreator
 
 
                     var queue: Request<String>?= Volley.newRequestQueue(context).add(myRequest)
-
 
                 }
 

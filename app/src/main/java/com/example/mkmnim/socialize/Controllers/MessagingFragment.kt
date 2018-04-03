@@ -12,11 +12,13 @@ import com.example.mkmnim.socialize.Adapters.MessageAdapter
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.VolleyCallBack
+import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
 import com.example.mkmnim.socialize.Utilities.WifiService
 import com.koushikdutta.async.http.AsyncHttpClient
 import com.koushikdutta.async.http.AsyncHttpRequest
 import com.koushikdutta.async.http.AsyncHttpResponse
 import kotlinx.android.synthetic.main.fragment_messaging.view.*
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -40,7 +42,9 @@ class MessagingFragment:android.support.v4.app.Fragment()
         override fun onClick(v: View?)
         {
             Log.i("mytag","Client Send btn")
-            messages.add(Message(myView!!.messageEditText.text.toString(), "You", WifiService.getIpAddress192type().toString()))
+            var myMessage=Message(myView!!.messageEditText.text.toString(), receiverIP.toString(), WifiService.getIpAddress192type().toString())
+            messages.add(myMessage)
+            DATABASE_HANDLER?.addMessage(myMessage)
             val messageText=myView!!.messageEditText.text.toString()
             Thread(Runnable {
                 val jsonObject=JSONObject()
@@ -61,7 +65,9 @@ class MessagingFragment:android.support.v4.app.Fragment()
         override fun onClick(v: View?)
         {
             Log.i("mytag","Host Send btn")
-            messages.add(Message(myView!!.messageEditText.text.toString(), "You", WifiService.getIpAddress192type().toString()))
+            var myMEssage=Message(myView!!.messageEditText.text.toString(), receiverIP.toString(), WifiService.getIpAddress192type().toString())
+            messages.add(myMEssage)
+            DATABASE_HANDLER?.addMessage(myMEssage)
             val messageText=myView!!.messageEditText.text.toString()
             Thread(Runnable {
                 val jsonObject=JSONObject()
@@ -88,8 +94,9 @@ class MessagingFragment:android.support.v4.app.Fragment()
         myView = inflater?.inflate(R.layout.fragment_messaging, container, false)
 
 
-        messages.add(Message("awwlele hello bhai", "You", WifiService.getIpAddress192type().toString()))
-        messages.add(Message("kaisa hai hello bhai", "Palku", WifiService.getIpAddress192type().toString()))
+//        messages.add(Message("awwlele hello bhai", "You", WifiService.getIpAddress192type().toString()))
+//        messages.add(Message("kaisa hai hello bhai", "Palku", WifiService.getIpAddress192type().toString()))
+
 
 
         setAdaptersAndOnClickListeners()
@@ -98,6 +105,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
         Log.i("mytag", this.arguments["devices"].toString())
         receiverIP = (this.arguments["devices"] as List<String>).get(this.arguments["position"] as Int) as String
         Log.i("mytag", receiverIP.toString())
+        loadMessages()
 
 //        if (WifiService.isHotspotOn(context))
 //        {
@@ -121,13 +129,13 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
         if (WifiService.isHotspotOn(context))
         {
-//            var temporaryPort2=5004 //get this temporary port by looping
-            var temporaryPort2=5123
-            Log.i("mytag","receiver ip is ${receiverIP.toString()} and temporary port is $temporaryPort2")
-//            ConnectToServerSocketHostedByEachClient("192.168.43.195",temporaryPort2) //client ip with client port
 
+            var appUsers:MutableList<String>
+//            appUsers=getAppUsers()
+//            Log.i("mytag","received app users are ${appUsers}")
 
             for (i in listOf<String>("192.168.43.195","192.168.43.76")) //these are connected devices
+//            for (i in appUsers)
             {
                 Thread(Runnable {
                     var myPort = getPortForToIp(i)
@@ -141,10 +149,6 @@ class MessagingFragment:android.support.v4.app.Fragment()
                     }
                 }).start()
             }
-
-//            ConnectToServerSocketHostedByEachClient("192.168.43.195",5004)//5004 of micromax
-//            ConnectToServerSocketHostedByEachClient("192.168.43.76",temporaryPort2)
-            //loop through all the connected devices
 
         }
 
@@ -234,15 +238,6 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
 
 
-
-
-
-
-
-
-
-
-
     fun readContent(reader:BufferedReader,newSocket: Socket)
     {
 
@@ -263,10 +258,6 @@ class MessagingFragment:android.support.v4.app.Fragment()
         }).start()
 
     }
-
-
-
-
 
 
     fun setAdaptersAndOnClickListeners()
@@ -347,8 +338,78 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
     }
 
+    public fun getAppUsers() : MutableList<String>
+    {
+        var appUsers: MutableList<String>
+        appUsers = mutableListOf()
+        var countFounded = 0
+        var max_limit = 9999999
+        var AppUsersListWithName: JSONArray
+
+        var listOfAlltimeConnectedDevices = WifiService.getClientList(context)
+        var answerList = mutableListOf<Any>()
+        var myResponse: String
+        var ctr = 0
+        for (i in listOfAlltimeConnectedDevices)
+        {
+            myResponse = ""
+            var url = "http://" + i + ":5000/"
+
+            AsyncHttpClient.getDefaultInstance().executeJSONObject(AsyncHttpRequest(Uri.parse(url), "GET"), object : AsyncHttpClient.JSONObjectCallback()
+            {
+                override fun onCompleted(e: java.lang.Exception?, source: AsyncHttpResponse?, result: JSONObject?)
+                {
+                    ctr += 1
+                    if (e != null)
+                    {
+                        Log.i("mytag", e.message.toString())
+                        return
+                    }
+                    Log.i("mytag", "I got a string: ${result.toString()}")
+                    try
+                    {
+                        var name = JSONObject(result.toString())["name"].toString()
+                        appUsers.add(i)
+                    }
+                    catch (ex: Exception)
+                    {
+                        Log.i("mytag", ex.message.toString())
+                    }
+                }
+
+            })
+        }
+        while (true)
+        {
+            if (ctr == listOfAlltimeConnectedDevices.size)
+            {
+                break
+            }
+        }
+        return appUsers
+    }
 
 
+    fun loadMessages()
+    {
+        if (DATABASE_HANDLER?.allMessages?.size != 0)
+        {
+            for (i in DATABASE_HANDLER?.allMessages!!)
+            {
+                var myIp: String? = WifiService.getIpAddress192type()
+                Log.i("tag1","my ip is $myIp")
+                Log.i("tag1","my receiver ip is $receiverIP")
+                Log.i("tag1","my i from is ${i.from}")
+                Log.i("tag1","my i recever is ${i.receiver}")
+
+                if ((i.receiver == receiverIP && i.from == myIp.toString()) || (i.receiver == myIp && i.from == receiverIP))
+                {
+                    Log.i("mytag", "i is $i and receeiver is $receiverIP")
+                    messages.add(i)
+                }
+            }
+        }
+    }
     fun replaceFragment(someFragment: android.support.v4.app.Fragment)
     {
         val transaction = fragmentManager.beginTransaction()
