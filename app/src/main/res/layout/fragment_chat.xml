@@ -6,12 +6,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.97" />
+
     <ListView
         android:id="@+id/chatListView"
-        android:layout_width="368dp"
-        android:layout_height="478dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/dataClear"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,47 +28,37 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/searchDevices"
-        android:layout_width="58dp"
-        android:layout_height="52dp"
-        android:layout_marginBottom="28dp"
-        android:layout_marginEnd="36dp"
+        android:layout_width="83dp"
+        android:layout_height="95dp"
+        android:layout_marginEnd="8dp"
         android:clickable="true"
-        app:backgroundTint="@android:color/holo_red_dark"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:backgroundTint="@color/colorPrimary"
+        app:elevation="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:rippleColor="@android:color/holo_orange_light"
         app:srcCompat="@android:drawable/ic_menu_search" />
-
-    <Button
-        android:id="@+id/dataClear"
-        android:layout_width="72dp"
-        android:layout_height="69dp"
-        android:layout_marginEnd="52dp"
-        android:layout_marginStart="8dp"
-        android:background="@android:drawable/ic_menu_delete"
-        android:backgroundTint="@android:color/background_dark"
-        android:imeActionLabel="Clear Data"
-        app:layout_constraintBottom_toBottomOf="@+id/textView2"
-        app:layout_constraintEnd_toStartOf="@+id/searchDevices"
-        app:layout_constraintHorizontal_bias="0.048"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView2"
-        app:layout_constraintVertical_bias="0.621" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="419dp" />
+        />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginTop="24dp"
-        android:text="Clear Data"
-        android:textSize="24sp"
-        app:layout_constraintTop_toTopOf="@+id/guideline"
-        tools:layout_editor_absoluteX="88dp" />
+    <Button
+        android:id="@+id/dataClear"
+        style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+        android:layout_width="93dp"
+        android:layout_height="95dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:drawable/ic_menu_delete"
+        android:backgroundTint="@android:color/background_dark"
+        android:elevation="24dp"
+        android:foregroundTint="@android:color/holo_blue_light"
+        android:imeActionLabel="Clear Data"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/searchDevices" />
+
 </android.support.constraint.ConstraintLayout>

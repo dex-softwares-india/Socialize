@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.util.TimeUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,8 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
+import java.sql.Time
+import java.util.*
 
 
 class MessagingFragment:android.support.v4.app.Fragment()
@@ -44,6 +47,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
             Log.i("mytag","Client Send btn")
             var myMessage=Message(myView!!.messageEditText.text.toString(), receiverIP.toString(), WifiService.getIpAddress192type().toString())
             messages.add(myMessage)
+            myView?.messagingListView?.setSelection(myMessageAdapter.count-1)
             DATABASE_HANDLER?.addMessage(myMessage)
             val messageText=myView!!.messageEditText.text.toString()
             Thread(Runnable {
@@ -67,6 +71,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
             Log.i("mytag","Host Send btn")
             var myMEssage=Message(myView!!.messageEditText.text.toString(), receiverIP.toString(), WifiService.getIpAddress192type().toString())
             messages.add(myMEssage)
+            myView?.messagingListView?.setSelection(myMessageAdapter.count-1)
             DATABASE_HANDLER?.addMessage(myMEssage)
             val messageText=myView!!.messageEditText.text.toString()
             Thread(Runnable {
@@ -134,18 +139,20 @@ class MessagingFragment:android.support.v4.app.Fragment()
 //            appUsers=getAppUsers()
 //            Log.i("mytag","received app users are ${appUsers}")
 
-            for (i in listOf<String>("192.168.43.195","192.168.43.76")) //these are connected devices
+//            for (i in listOf<String>("192.168.43.195","192.168.43.76")) //these are connected devices
 //            for (i in appUsers)
+
+            for (i in WifiService.getClientList(context))
             {
                 Thread(Runnable {
-                    var myPort = getPortForToIp(i)
                     try
                     {
+                        var myPort = getPortForToIp(i)
                         ConnectToServerSocketHostedByEachClient(i, Integer.parseInt(myPort))//5004 of micromax
                     }
                     catch (ex: Exception)
                     {
-                        Log.i("mytag", ex.message.toString() + "in ConnectToServerSocketHostedByEachClient for " + i.toString())
+                        Log.i("error", ex.message.toString() + "in ConnectToServerSocketHostedByEachClient for " + i.toString())
                     }
                 }).start()
             }

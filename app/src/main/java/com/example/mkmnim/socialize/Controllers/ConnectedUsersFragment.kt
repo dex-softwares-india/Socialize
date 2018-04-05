@@ -1,5 +1,6 @@
 package com.example.mkmnim.socialize.Controllers
 
+import android.app.AlertDialog
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -25,6 +26,10 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
+import android.content.DialogInterface
+import android.os.Build
+
+
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
@@ -35,8 +40,8 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
-        getViewSetListenersAdapters(inflater,container,savedInstanceState)
 
+        getViewSetListenersAdapters(inflater,container,savedInstanceState)
 
         if (WifiService.isHotspotOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
         {
@@ -83,7 +88,28 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
         }
         myView!!.dataClear.setOnClickListener {
-            DATABASE_HANDLER!!.deleteAllMessages()
+            val builder: AlertDialog.Builder
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            {
+                builder = AlertDialog.Builder(context, android.R.style.Theme_Material_Dialog_Alert)
+            }
+            else
+            {
+                builder = AlertDialog.Builder(context)
+            }
+            builder.setTitle("Delete:")
+                    .setMessage("Are you sure you want to delete all your chats")
+                    .setPositiveButton(android.R.string.yes, DialogInterface.OnClickListener { dialog, which ->
+                        // continue with delete
+                        DATABASE_HANDLER!!.deleteAllMessages()
+                        Toast.makeText(context,"Your all messages are deleted",Toast.LENGTH_SHORT).show()
+                    })
+                    .setNegativeButton(android.R.string.no, DialogInterface.OnClickListener { dialog, which ->
+                        // do nothing
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+
         }
     }
 
