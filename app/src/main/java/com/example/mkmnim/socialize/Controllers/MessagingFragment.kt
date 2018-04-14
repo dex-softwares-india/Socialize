@@ -8,6 +8,7 @@ import android.util.TimeUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import com.example.mkmnim.socialize.Adapters.MessageAdapter
 import com.example.mkmnim.socialize.Models.Message
@@ -45,7 +46,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
         override fun onClick(v: View?)
         {
             Log.i("mytag","Client Send btn")
-            var myMessage=Message(myView!!.messageEditText.text.toString(), receiverIP.toString(), WifiService.getIpAddress192type().toString())
+            var myMessage=Message(myView!!.messageEditText.text.toString().trim(), receiverIP.toString(), WifiService.getIpAddress192type(context).toString())
             messages.add(myMessage)
             myView?.messagingListView?.setSelection(myMessageAdapter.count-1)
             DATABASE_HANDLER?.addMessage(myMessage)
@@ -53,7 +54,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
             Thread(Runnable {
                 val jsonObject=JSONObject()
                 jsonObject.put("messageContent",messageText)
-                jsonObject.put("from",WifiService.getIpAddress192type().toString())
+                jsonObject.put("from",WifiService.getIpAddress192type(context).toString())
                 jsonObject.put("to",receiverIP.toString())
                 outFromClient?.println(jsonObject.toString())
                 outFromClient?.flush()
@@ -69,7 +70,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
         override fun onClick(v: View?)
         {
             Log.i("mytag","Host Send btn")
-            var myMEssage=Message(myView!!.messageEditText.text.toString(), receiverIP.toString(), WifiService.getIpAddress192type().toString())
+            var myMEssage=Message(myView!!.messageEditText.text.toString().trim(), receiverIP.toString(), WifiService.getIpAddress192type(context).toString())
             messages.add(myMEssage)
             myView?.messagingListView?.setSelection(myMessageAdapter.count-1)
             DATABASE_HANDLER?.addMessage(myMEssage)
@@ -77,7 +78,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
             Thread(Runnable {
                 val jsonObject=JSONObject()
                 jsonObject.put("messageContent",messageText)
-                jsonObject.put("from",WifiService.getIpAddress192type().toString())
+                jsonObject.put("from",WifiService.getIpAddress192type(context).toString())
                 jsonObject.put("to",receiverIP.toString())
                 var outFromServer:PrintWriter?=null
                 outFromServer=outFromServerHashMap.get(receiverIP)
@@ -96,6 +97,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
+        activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         myView = inflater?.inflate(R.layout.fragment_messaging, container, false)
 
 
@@ -258,7 +260,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
                 }
                 println(messageContent)
                 activity.runOnUiThread{
-                    messages.add(Message(messageContent, "You", WifiService.getIpAddress192type().toString()))
+                    messages.add(Message(messageContent, "You", WifiService.getIpAddress192type(context).toString()))
                     myMessageAdapter.notifyDataSetChanged()
                 }
             }
@@ -403,7 +405,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
         {
             for (i in DATABASE_HANDLER?.allMessages!!)
             {
-                var myIp: String? = WifiService.getIpAddress192type()
+                var myIp: String? = WifiService.getIpAddress192type(context)
                 Log.i("tag1","my ip is $myIp")
                 Log.i("tag1","my receiver ip is $receiverIP")
                 Log.i("tag1","my i from is ${i.from}")

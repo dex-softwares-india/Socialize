@@ -28,14 +28,14 @@ import java.net.ServerSocket
 import java.net.Socket
 import android.content.DialogInterface
 import android.os.Build
-
-
+import android.support.v7.app.AppCompatActivity
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
 {
     var myView: View? = null
     var initiateMessagingFragment:MessagingFragment?=null
+    var connectedDevicesWithGreenCircle:MutableSet<String>?=null
     lateinit var connectedDevices: ArrayList<String>
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
@@ -54,8 +54,9 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 //            var temporaryPort=5004 //for micromax instead of 5123
 
             Handler().postDelayed(Runnable {
-                Log.i("mytag", WifiService.getIpAddress192type().toString()+"in ConnectedHandler")
-                var temporaryPort: String = getPortForToIp(WifiService.getIpAddress192type().toString())
+
+                Log.i("mytag", WifiService.getIpAddress192type(context = activity.baseContext).toString()+"in ConnectedHandler")
+                var temporaryPort: String = getPortForToIp(WifiService.getIpAddress192type(context=activity).toString())
 
                 Log.i("mytag", "inConnected User fragment Change temporary port by requesting from port page")
 
@@ -122,8 +123,19 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
             while (true)
             {
                 var newSocket = serverSocket.accept()
+                connectedDevicesWithGreenCircle?.add(newSocket.toString())
+                Log.i("DEVICE",newSocket.toString())
+                Log.i("DEVICE",newSocket.inetAddress.toString().substring(1))
+                if (connectedDevicesWithGreenCircle!=null)
+                {
+                    for (device in connectedDevicesWithGreenCircle!!)
+                    {
+                        Log.i("DEVICE", device)
+                    }
+                }
                 var reader = BufferedReader(InputStreamReader(newSocket.getInputStream()))
                 readContent(reader, newSocket)
+
             }
         }).start()
     }

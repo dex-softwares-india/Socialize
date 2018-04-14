@@ -1,5 +1,7 @@
 package com.example.mkmnim.socialize.Utilities
 
+import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.net.wifi.WifiManager
 import android.util.Log
@@ -128,8 +130,12 @@ object WifiService
         return ret
     }
 
-    fun getIpAddress192type(): String?
+    fun getIpAddress192type(context: Context): String?
     {
+        if (WifiService.isHotspotOn(context))
+        {
+            return "192.168.43.1"
+        }
         try
         {
             val en = NetworkInterface.getNetworkInterfaces()

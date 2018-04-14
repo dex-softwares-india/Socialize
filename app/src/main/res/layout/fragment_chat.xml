@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.97" />
+        app:layout_constraintGuide_percent="0.99" />
 
     <ListView
         android:id="@+id/chatListView"
@@ -26,39 +26,35 @@
 
     </ListView>
 
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" />
+
+    <ImageButton
+        android:id="@+id/dataClear"
+        style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="16dp"
+        android:imeActionLabel="Clear Data"
+        android:src="@drawable/deletebtns"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/searchDevices"
+        app:layout_constraintVertical_bias="1.0" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/searchDevices"
-        android:layout_width="83dp"
-        android:layout_height="95dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="66dp"
+        android:layout_height="58dp"
+        android:layout_marginEnd="16dp"
         android:clickable="true"
         app:backgroundTint="@color/colorPrimary"
         app:elevation="8dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_search" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        />
-
-    <Button
-        android:id="@+id/dataClear"
-        style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-        android:layout_width="93dp"
-        android:layout_height="95dp"
-        android:layout_marginStart="8dp"
-        android:background="@android:drawable/ic_menu_delete"
-        android:backgroundTint="@android:color/background_dark"
-        android:elevation="24dp"
-        android:foregroundTint="@android:color/holo_blue_light"
-        android:imeActionLabel="Clear Data"
-        android:textColor="@color/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/searchDevices" />
 
 </android.support.constraint.ConstraintLayout>

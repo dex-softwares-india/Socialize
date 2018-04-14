@@ -1,6 +1,7 @@
 package com.example.mkmnim.socialize.Controllers
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
@@ -8,9 +9,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import com.bumptech.glide.Glide
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.Utilities.API.PageCreator
+import com.example.mkmnim.socialize.Utilities.MAIN_FRAGMENT_INITIALIZED_ONCE
 import com.example.mkmnim.socialize.Utilities.WifiService
 import kotlinx.android.synthetic.main.fragment_main.view.*
 
@@ -18,10 +22,29 @@ import kotlinx.android.synthetic.main.fragment_main.view.*
 class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
 {
     var myView:View?=null
+    var mysharedPrefs:SharedPreferences?=null
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
+        activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         myView=inflater?.inflate(R.layout.fragment_main,container,false)
+
+        //Getting name from SharedPrefs
+        mysharedPrefs=activity.getSharedPreferences("com.example.socialize",Context.MODE_PRIVATE)
+
+
+        myView!!.Username.setText(mysharedPrefs?.getString("username",""))
+
+        if (MAIN_FRAGMENT_INITIALIZED_ONCE)
+        {
+            myView!!.Username.isEnabled=false
+        }
+
         myView!!.Go.setOnClickListener(this)
+
+        //playing GIF
+        Glide.with(context)
+                .load(R.drawable.butwhataboutsocialization)
+                .into(myView!!.whataboutgif)
         return myView!!
 
     }
@@ -29,8 +52,9 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
 
     fun onGoPressed(view: View?)
     {
+        MAIN_FRAGMENT_INITIALIZED_ONCE=true
         var wifi=activity.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-
+        mysharedPrefs?.edit()?.putString("username",myView!!.Username.text.toString())?.apply()
         if (wifi.isWifiEnabled)
         {
             myView!!.progressBar.visibility=View.VISIBLE
