@@ -4,17 +4,18 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.util.TimeUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.example.mkmnim.socialize.Adapters.MessageAdapter
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.RequestClass.VolleyCallBack
 import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
+import com.example.mkmnim.socialize.Utilities.MESSAGING_FRAGMENT_INITIALIZED_ONCE
 import com.example.mkmnim.socialize.Utilities.WifiService
 import com.koushikdutta.async.http.AsyncHttpClient
 import com.koushikdutta.async.http.AsyncHttpRequest
@@ -27,7 +28,6 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
-import java.sql.Time
 import java.util.*
 
 
@@ -112,26 +112,18 @@ class MessagingFragment:android.support.v4.app.Fragment()
         Log.i("mytag", this.arguments["devices"].toString())
         receiverIP = (this.arguments["devices"] as List<String>).get(this.arguments["position"] as Int) as String
         Log.i("mytag", receiverIP.toString())
-        loadMessages()
 
-//        if (WifiService.isHotspotOn(context))
-//        {
-//            ConnectToClientSocket(5001)
-//
-//        }
-//
-//
-//
-//        if (WifiService.isWifiOn(context))
-//        {
-//            var temporaryPort=5005
-//            CreateServerHostWithDifferentPorts(temporaryPort)
-//        }
+        loadMessages()
 
 
         if (WifiService.isWifiOn(context))
         {
-            connectToServerSocket(5001) //outFromClient always 5001
+            if (MESSAGING_FRAGMENT_INITIALIZED_ONCE==false)
+            {
+                connectToServerSocket(5001)//outFromClient always 5001
+                MESSAGING_FRAGMENT_INITIALIZED_ONCE=true
+            }
+
         }
 
         if (WifiService.isHotspotOn(context))
@@ -150,7 +142,10 @@ class MessagingFragment:android.support.v4.app.Fragment()
                     try
                     {
                         var myPort = getPortForToIp(i)
-                        ConnectToServerSocketHostedByEachClient(i, Integer.parseInt(myPort))//5004 of micromax
+                        if (myPort!="None")
+                        {
+                            ConnectToServerSocketHostedByEachClient(i, Integer.parseInt(myPort))//5004 of micromax
+                        }
                     }
                     catch (ex: Exception)
                     {
@@ -328,21 +323,29 @@ class MessagingFragment:android.support.v4.app.Fragment()
             }
         })
 
-
+        var startTime=Calendar.getInstance().timeInMillis
         while(true)
         {
 
-            Log.i("mytag", "stuck in looping volley port")
-            Log.i("mytag","port is $port")
+            Log.i("mytag", "stuck in looping volley port is $port")
+            Log.i("MYTIME",(Calendar.getInstance().timeInMillis-startTime).toString())
 
+            if ((Calendar.getInstance().timeInMillis-startTime)>1000)
+            {
+                port="None"
+            }
 
             if (port != "")
             {
-                Log.i("mytag","answerFromPortForIp is $port while looking $requestString")
+                Log.i("PORTFROMIP","answerFromPortForIp is $port while looking $requestString")
                 break
             }
         }
 //        return 1234.toString()
+        activity.runOnUiThread {
+            Toast.makeText(activity,to+"   "+(Calendar.getInstance().timeInMillis-startTime).toString()+" with port $port",Toast.LENGTH_LONG).show()
+        }
+//        Log.i("TAKENTIME",(Calendar.getInstance().timeInMillis-startTime).toString())
         return port.toString()
 
     }

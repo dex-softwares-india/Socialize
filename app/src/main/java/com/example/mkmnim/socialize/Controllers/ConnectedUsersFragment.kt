@@ -29,6 +29,7 @@ import java.net.Socket
 import android.content.DialogInterface
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
+import com.example.mkmnim.socialize.Utilities.DEVICES_WITH_GREEN_CIRCLE_FOR_HOST
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
@@ -123,18 +124,29 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
             while (true)
             {
                 var newSocket = serverSocket.accept()
-                connectedDevicesWithGreenCircle?.add(newSocket.toString())
-                Log.i("DEVICE",newSocket.toString())
-                Log.i("DEVICE",newSocket.inetAddress.toString().substring(1))
-                if (connectedDevicesWithGreenCircle!=null)
+                Log.i("DEVICE","client arrived")
+                Log.i("DEVICE",newSocket.inetAddress.toString())
+
+
+                if (connectedDevices.contains(newSocket.inetAddress.toString()))
                 {
-                    for (device in connectedDevicesWithGreenCircle!!)
-                    {
-                        Log.i("DEVICE", device)
-                    }
+
                 }
+                else
+                {
+                    connectedDevices.add(newSocket.inetAddress.toString()+"hehe")
+                }
+
+
+                activity.runOnUiThread {
+                    myView!!.chatListView.adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, connectedDevices)
+                    myView!!.chatListView.onItemClickListener = this@ConnectedUsersFragment
+                }
+
+
                 var reader = BufferedReader(InputStreamReader(newSocket.getInputStream()))
                 readContent(reader, newSocket)
+
 
             }
         }).start()
@@ -154,6 +166,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
             }
         }).start()
     }
+
 
     fun readContent(reader: BufferedReader, newSocket: Socket)
     {
@@ -255,29 +268,6 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         var requestString="http://"+to+":5000/portno"
         Log.i("mytag","request string is $requestString")
         var port:String=""  //possible values ["",None,port no]
-//        var volleyCallBack=object:VolleyCallBack
-//        {
-//            override fun onSuccess(result: String)
-//            {
-//                Log.i("mytag","result is $result from callback")
-//                if (result!="failed")
-//                {
-//                    port=JSONObject(result)["port"].toString()
-//
-//                }
-//                else if (result=="failed")
-//                {
-//                    port="None"
-//                }
-//                Log.i("mytag","result is $result")
-//
-//            }
-//        }
-//        VolleyService.getPort(requestString,context,volleyCallBack)
-//        {
-//           Log.i("mytag","post find port in volleyService")
-//
-//        }
 
         AsyncHttpClient.getDefaultInstance().executeJSONObject(AsyncHttpRequest(Uri.parse(requestString),"GET"), object : AsyncHttpClient.JSONObjectCallback()
         {
