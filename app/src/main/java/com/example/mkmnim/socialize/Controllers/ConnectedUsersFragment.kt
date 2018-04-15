@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
+import com.example.mkmnim.socialize.RequestClass.VolleyCallBack
 import com.example.mkmnim.socialize.Utilities.CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE
 import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
 import com.example.mkmnim.socialize.Utilities.WifiService
@@ -29,6 +30,7 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.*
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
@@ -36,7 +38,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
     var myView: View? = null
     var initiateMessagingFragment:MessagingFragment?=null
     var connectedDevicesWithGreenCircle:MutableSet<String>?=null
-    lateinit var connectedDevices: ArrayList<String>
+//    lateinit var connectedDevices: ArrayList<String>
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
@@ -45,7 +47,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
         if (WifiService.isHotspotOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE)
         {
-            ConnectToClientSocket(5001) //writing to server
+            ConnectToClientSocket(5001) //hosting 5001
         }
 
         if (WifiService.isWifiOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE) //edit to receive port from portpage
@@ -63,7 +65,11 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                     CreateServerHostWithDifferentPorts(Integer.parseInt(temporaryPort))
                 }
                 //for each device only one statement
-            },2000)
+            },1000)
+
+            Handler().postDelayed({
+                connectToServerSocket(5001)
+            },1500)
         }
 
         CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE=true
@@ -75,12 +81,27 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
     fun getViewSetListenersAdapters(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?)
     {
         myView = inflater?.inflate(R.layout.fragment_chat, container, false)
-        connectedDevices = WifiService.getConnectedDevices(context)
+        var previousDevices = connectedDevices.clone() as ArrayList<String>
+
+        /* may be uncommented  later*/
+//        connectedDevices = WifiService.getConnectedDevices(context)
+
+        for (device in previousDevices)
+        {
+            if (connectedDevices.contains(device))
+            { }
+            else
+            {
+                connectedDevices.add(device)
+            }
+        }
+
         myView!!.chatListView.adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, connectedDevices)
 
         myView!!.chatListView.onItemClickListener=this
         myView!!.searchDevices.setOnClickListener {
-            connectedDevices = WifiService.getConnectedDevices(context)
+            /* may be uncommented  later*/
+//            connectedDevices = WifiService.getConnectedDevices(context)
             myView!!.chatListView.adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, connectedDevices)
             myView!!.chatListView.onItemClickListener=this@ConnectedUsersFragment
 
@@ -103,7 +124,6 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                         Toast.makeText(context,"Your all messages are deleted",Toast.LENGTH_SHORT).show()
                     })
                     .setNegativeButton(android.R.string.no, DialogInterface.OnClickListener { dialog, which ->
-                        // do nothing
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show()
@@ -120,16 +140,45 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
             while (true)
             {
                 var newSocket = serverSocket.accept()
-                Log.i("DEVICE","client arrived")
-                Log.i("DEVICE",newSocket.inetAddress.toString())
+                Log.i("mytag", "client arrived")
+                Log.i("mytag", newSocket.inetAddress.toString())
+
+                call_ConnectToServerHostedByEachClient(newSocket.inetAddress.toString().substring(1))
 
 
-                if (connectedDevices.contains(newSocket.inetAddress.toString()))
-                {}
+                if (connectedDevices.contains(newSocket.inetAddress.toString().substring(1)))
+                {
+                    activity.runOnUiThread {
+                        Toast.makeText(context, "added in if", Toast.LENGTH_SHORT).show()
+                    }
+                }
                 else
                 {
-                    connectedDevices.add(newSocket.inetAddress.toString()+"hehe")
+                    connectedDevices.add(newSocket.inetAddress.toString().substring(1))
+                    activity.runOnUiThread {
+                        Toast.makeText(context, "added in else", Toast.LENGTH_SHORT).show()
+                    }
                 }
+
+                //Devices Sending to Other Devices
+                for (device1 in connectedDevices)
+                {
+                    for (device2 in connectedDevices)
+                    {
+                        if (device1 != device2)
+                        {
+                            var connectedDeviceJSONObject = JSONObject()
+                            connectedDeviceJSONObject.put("newDevice", device2)
+                            sendMessage(device1, connectedDeviceJSONObject.toString())
+                        }
+                    }
+                    var connectedDeviceJSONObject = JSONObject()
+                    connectedDeviceJSONObject.put("newDevice", "192.168.43.1")
+                    sendMessage(device1, connectedDeviceJSONObject.toString())
+
+                }
+
+
 
 
                 activity.runOnUiThread {
@@ -179,7 +228,27 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                     Log.i("mytag","readContent in ConnectedUserFragment")
 
                     //if JSON object contains a message
+                    var receivedJSONObject=JSONObject(messageContent)
 
+                    if (receivedJSONObject.has("newDevice") && WifiService.isWifiOn(context))
+                    {
+                        if (connectedDevices.contains(receivedJSONObject["newDevice"].toString()))
+                        {}
+                        else
+                        {
+                            connectedDevices.add(receivedJSONObject["newDevice"].toString())
+                        }
+
+                        activity.runOnUiThread {
+                            myView!!.chatListView.adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, connectedDevices)
+                            myView!!.chatListView.onItemClickListener = this@ConnectedUsersFragment
+                        }
+
+                    }
+
+
+                    else if (receivedJSONObject.has("messageContent"))
+                    {
                         var messageContentText = JSONObject(messageContent)["messageContent"].toString()
                         var to = JSONObject(messageContent)["to"].toString()
                         var from = JSONObject(messageContent)["from"].toString()
@@ -188,20 +257,22 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
                         if (WifiService.isWifiOn(context))
                         {
-                            addMessageToDatabase(messageContentText,to,from)
+                            addMessageToDatabase(messageContentText, to, from)
+
                             if (initiateMessagingFragment != null)
                             {
-                                initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count)
+//                                initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count-1)
                             }
                         }
 
                         if (WifiService.isHotspotOn(context))
                         {
 //                        if self ip
-                            Log.i("tag1", "to is" + to.toString() + "p")
+                            Log.i("mytag", "to is" + to.toString() + "p")
                             if (to == "192.168.43.1") //to==admin Ip
                             {
                                 addMessageToDatabase(messageContentText, to, from)
+
                                 if (initiateMessagingFragment != null)
                                 {
                                     initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count)
@@ -210,19 +281,19 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                             else
                             {
                                 //send message to "to"
-                                sendMessage(to,messageContent)
+                                sendMessage(to, messageContent)
                             }
 
 
                         }
-
+                    }
 
 
 
 
                     Log.i("mytag","Contact Count : "+DATABASE_HANDLER!!.messagesCount.toString())
 
-                    printAllMessages() //will print all messages linked to DATABASE_HANDLER
+                    //printAllMessages() //will print all messages linked to DATABASE_HANDLER
 
 
                 }
@@ -276,7 +347,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
     }
 
 
-    public fun getPortForToIp(to:String):String    //returns None or port no
+    public fun getPortForToIps(to:String):String    //returns None or port no
     {
         var requestString="http://"+to+":5000/portno"
         Log.i("mytag","request string is $requestString")
@@ -315,6 +386,150 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
     }
 
+    public fun getPortForToIp(to:String):String    //returns None or port no
+    {
+        var requestString="http://"+to+":5000/portno"
+        Log.i("mytag","request string is $requestString")
+        var port:String=""  //possible values ["",None,port no]
+        var volleyCallBack=object: VolleyCallBack
+        {
+            override fun onSuccess(result: String)
+            {
+                Log.i("mytag","result is $result from callback")
+                if (result!="failed")
+                {
+                    port=JSONObject(result)["port"].toString()
+
+                }
+                else if (result=="failed")
+                {
+                    port="None"
+                }
+                Log.i("mytag","result is $result")
+
+            }
+        }
+//        VolleyService.getPort(requestString,context,volleyCallBack)
+//        {
+//           Log.i("mytag","post find port in volleyService")
+//
+//        }
+
+        AsyncHttpClient.getDefaultInstance().executeJSONObject(AsyncHttpRequest(Uri.parse(requestString),"GET"), object : AsyncHttpClient.JSONObjectCallback()
+        {
+            override fun onCompleted(e: java.lang.Exception?, source: AsyncHttpResponse?, result: JSONObject?)
+            {
+                if (e != null)
+                {
+                    Log.i("mytag",e.message.toString())
+                    return
+                }
+                Log.i("mytag","I got a string: ${result.toString()}")
+                port=JSONObject(result.toString())["port"].toString()
+            }
+        })
+
+        var startTime= Calendar.getInstance().timeInMillis
+        while(true)
+        {
+
+//            Log.i("mytag", "stuck in looping volley port is $port")
+//            Log.i("MYTIME",(Calendar.getInstance().timeInMillis-startTime).toString())
+
+            if ((Calendar.getInstance().timeInMillis-startTime)>1000)
+            {
+                Log.i("mytag","quitting after trying connecting for 1 second in connectedUserfragment")
+                port="None"
+            }
+
+            if (port != "")
+            {
+                Log.i("mytag","answerFromPortForIp is $port while looking $requestString in connected user fragment")
+                break
+            }
+        }
+//        return 1234.toString()
+        activity.runOnUiThread {
+            Toast.makeText(activity,to+"   "+(Calendar.getInstance().timeInMillis-startTime).toString()+" with port $port",Toast.LENGTH_LONG).show()
+        }
+//        Log.i("TAKENTIME",(Calendar.getInstance().timeInMillis-startTime).toString())
+        return port.toString()
+
+    }
+
+
+    fun connectToServerSocket(port:Int) //5001  //receiver mobile (that is whose wifi is on)
+    {
+        Log.i("mytag","connectToServerSocket")
+
+        Thread(Runnable {
+            try
+            {
+                val socket = Socket("192.168.43.1", port)  //use 1 instead of 76 -  -  - host ip for testing using 192.168.43.76
+//                    val socket = Socket("10.132.240.103", port)
+
+                MessagingFragment.outFromClient = PrintWriter(socket.getOutputStream())
+
+            }
+            catch (ex:Exception)
+            {
+                Log.i("mytag",ex.message.toString()+"in connectToServerSocket")
+            }
+
+        }).start()
+
+
+    }
+
+
+
+    fun call_ConnectToServerHostedByEachClient(i:String)
+    {
+
+        Thread(Runnable {
+            try
+            {
+                var myPort = getPortForToIp(i)
+                if (myPort != "None")
+                {
+                    ConnectToServerSocketHostedByEachClient(i, Integer.parseInt(getPortForToIp(i)))
+                }
+            }
+            catch (ex: Exception)
+            {
+                Log.i("mytag", ex.message.toString() + "in ConnectToServerSocketHostedByEachClient for " + i.toString())
+            }
+        }).start()
+
+    }
+
+    fun ConnectToServerSocketHostedByEachClient(host:String,port:Int)  //receiver mobile (that is whose hotspot is on)
+    {
+
+        Log.i("mytag", "ConnecttoServerSocketHostedByeachClient")
+        Thread(Runnable {
+            try
+            {
+                val socket = Socket(host, port)  //use 1 instead of 76 -  -  - host ip for testing using 192.168.43.76
+                var outFromServer = PrintWriter(socket.getOutputStream())
+                MessagingFragment.outFromServerHashMap[host] = outFromServer
+            }
+            catch (ex: Exception)
+            {
+                Log.i("mytag", ex.message.toString() + "in ConnectToServerSocketHostedByEachClient")
+            }
+
+        }).start()
+    }
+
+    companion object
+    {
+        var connectedDevices=ArrayList<String>()
+    }
+
+
+
+
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long)
     {
         initiateMessagingFragment = MessagingFragment()
@@ -334,5 +549,8 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         transaction.addToBackStack(null)
         transaction.commit()
     }
+
+
+
 
 }

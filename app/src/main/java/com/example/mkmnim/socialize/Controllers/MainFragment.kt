@@ -66,7 +66,7 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
                 PageCreator.server?.listen(5000)
                 Log.i("mytag","all pages created")
 
-            },1000)
+            },500)
         }
         if (WifiService.isHotspotOn(context))
         {
@@ -82,7 +82,7 @@ class MainFragment:android.support.v4.app.Fragment(),View.OnClickListener
 
                 myView!!.progressBar.visibility=View.INVISIBLE
 
-            },1000)
+            },500)
         }
     }
 

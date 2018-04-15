@@ -37,9 +37,9 @@ class MessagingFragment:android.support.v4.app.Fragment()
     var messages= mutableListOf<Message>()
     lateinit var myMessageAdapter:MessageAdapter
     var receiverIP:String?=null
-    var outFromClient:PrintWriter?=null
+
 //    var outFromServer:PrintWriter?=null //this should be many corresponding to each port
-    var outFromServerHashMap=HashMap<String,PrintWriter>()
+
     private var clientSendButtonOnClickListener=object: View.OnClickListener
     {
 
@@ -120,12 +120,14 @@ class MessagingFragment:android.support.v4.app.Fragment()
         {
             if (MESSAGING_FRAGMENT_INITIALIZED_ONCE==false)
             {
-                connectToServerSocket(5001)//outFromClient always 5001
+                /* may be uncommented  later*/
+//                connectToServerSocket(5001)//outFromClient always 5001
                 MESSAGING_FRAGMENT_INITIALIZED_ONCE=true
             }
 
         }
 
+        return myView!!
         if (WifiService.isHotspotOn(context))
         {
 
@@ -439,5 +441,9 @@ class MessagingFragment:android.support.v4.app.Fragment()
                 myView!!.messageEditText.getWindowToken(), 0);
     }
 
-
+    companion object
+    {
+        var outFromServerHashMap=HashMap<String,PrintWriter>()
+        var outFromClient:PrintWriter?=null
+    }
 }
