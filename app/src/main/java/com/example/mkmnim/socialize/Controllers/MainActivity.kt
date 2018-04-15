@@ -230,9 +230,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 sendIntent.type = "text/plain"
                 startActivity(sendIntent)
             }
-            R.id.nav_send ->
+            R.id.nav_feedback ->
             {
-
+                val Email = Intent(Intent.ACTION_SEND)
+                Email.type = "text/email"
+                Email.putExtra(Intent.EXTRA_EMAIL, arrayOf("nimish4july1998@gmail.com"))
+                Email.putExtra(Intent.EXTRA_SUBJECT, "Feedback")
+                Email.putExtra(Intent.EXTRA_TEXT, "Dear ...," + "")
+                startActivity(Intent.createChooser(Email, "Send Feedback:"))
+                return true
             }
         }
 
@@ -256,7 +262,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         LocalBroadcastManager.getInstance(this).unregisterReceiver(hotspotStateChangeReceiver)
         super.onDestroy()
     }
-
 
 
 }

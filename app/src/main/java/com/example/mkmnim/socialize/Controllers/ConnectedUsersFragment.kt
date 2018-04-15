@@ -1,7 +1,9 @@
 package com.example.mkmnim.socialize.Controllers
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -20,16 +22,13 @@ import com.koushikdutta.async.http.AsyncHttpClient
 import com.koushikdutta.async.http.AsyncHttpRequest
 import com.koushikdutta.async.http.AsyncHttpResponse
 import kotlinx.android.synthetic.main.fragment_chat.view.*
+import kotlinx.android.synthetic.main.fragment_messaging.*
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
-import android.content.DialogInterface
-import android.os.Build
-import android.support.v7.app.AppCompatActivity
-import com.example.mkmnim.socialize.Utilities.DEVICES_WITH_GREEN_CIRCLE_FOR_HOST
 
 
 class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnItemClickListener
@@ -51,15 +50,12 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
         if (WifiService.isWifiOn(context) && !CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE) //edit to receive port from portpage
         {
-//            var temporaryPort=5004   //receive the port by requesting from Port page
-//            var temporaryPort=5004 //for micromax instead of 5123
 
             Handler().postDelayed(Runnable {
 
-                Log.i("mytag", WifiService.getIpAddress192type(context = activity.baseContext).toString()+"in ConnectedHandler")
-                var temporaryPort: String = getPortForToIp(WifiService.getIpAddress192type(context=activity).toString())
-
-                Log.i("mytag", "inConnected User fragment Change temporary port by requesting from port page")
+                var ipFromWifiService=WifiService.getIpAddress192type(context = activity.baseContext).toString()
+                Log.i("mytag", ipFromWifiService+"in ConnectedHandler")
+                var temporaryPort: String = getPortForToIp(ipFromWifiService).toString()
 
                 if (temporaryPort != "None")
                 {
@@ -129,9 +125,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
 
                 if (connectedDevices.contains(newSocket.inetAddress.toString()))
-                {
-
-                }
+                {}
                 else
                 {
                     connectedDevices.add(newSocket.inetAddress.toString()+"hehe")
@@ -184,60 +178,46 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                     Toast.makeText(context, messageContent.toString(), Toast.LENGTH_LONG).show()
                     Log.i("mytag","readContent in ConnectedUserFragment")
 
-                    var messageContentText=JSONObject(messageContent)["messageContent"].toString()
-                    var to=JSONObject(messageContent)["to"].toString()
-                    var from=JSONObject(messageContent)["from"].toString()
+                    //if JSON object contains a message
 
+                        var messageContentText = JSONObject(messageContent)["messageContent"].toString()
+                        var to = JSONObject(messageContent)["to"].toString()
+                        var from = JSONObject(messageContent)["from"].toString()
 
+                        Log.i("mytag", "send to $to from $from")
 
-                    Log.i("mytag","send to $to from $from")
+                        if (WifiService.isWifiOn(context))
+                        {
+                            addMessageToDatabase(messageContentText,to,from)
+                            if (initiateMessagingFragment != null)
+                            {
+                                initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count)
+                            }
+                        }
 
-                    if (WifiService.isWifiOn(context))
-                    {
-                        initiateMessagingFragment?.messages?.add(Message(messageContentText,to,from))
-                        initiateMessagingFragment?.myMessageAdapter?.notifyDataSetChanged()
-                        DATABASE_HANDLER?.addMessage(Message(messageContentText,to,from))
-                    }
-
-                    if (WifiService.isHotspotOn(context))
-                    {
+                        if (WifiService.isHotspotOn(context))
+                        {
 //                        if self ip
-                        Log.i("tag1","to is"+ to.toString()+"p")
-                        if (to=="192.168.43.1") //to==admin Ip
-                        {
-                            initiateMessagingFragment?.messages?.add(Message(messageContentText,to,from))
-                            initiateMessagingFragment?.myMessageAdapter?.notifyDataSetChanged()
-                            DATABASE_HANDLER?.addMessage(Message(messageContentText,to,from))
-                        }
-                        else
-                        {
-                            //send message to "to"
-                            Thread(Runnable {
-                                try
+                            Log.i("tag1", "to is" + to.toString() + "p")
+                            if (to == "192.168.43.1") //to==admin Ip
+                            {
+                                addMessageToDatabase(messageContentText, to, from)
+                                if (initiateMessagingFragment != null)
                                 {
-                                    var port = getPortForToIp(to)  //port of receiver
-
-//                                    val socket = Socket(to, 5004)//above port of receiver
-                                    if (port != "None")
-                                    {
-                                        val socket = Socket(to, Integer.parseInt(port))
-                                        var outFromServer: PrintWriter? = PrintWriter(socket.getOutputStream())
-                                        outFromServer?.println(messageContent.toString())
-                                        outFromServer?.flush()
-                                    }
+                                    initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count)
                                 }
-                                catch (ex:Exception)
-                                {
-                                    Log.i("mytag",ex.toString()+ex.message.toString()+"in Sending a message through admin")
-                                }
+                            }
+                            else
+                            {
+                                //send message to "to"
+                                sendMessage(to,messageContent)
+                            }
 
-                            }).start()
 
                         }
 
 
 
-                    }
 
 
                     Log.i("mytag","Contact Count : "+DATABASE_HANDLER!!.messagesCount.toString())
@@ -252,6 +232,39 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
     }
 
+
+    fun addMessageToDatabase(messageContentText: String,to: String,from:String)
+    {
+        initiateMessagingFragment?.messages?.add(Message(messageContentText, to, from))
+        initiateMessagingFragment?.myMessageAdapter?.notifyDataSetChanged()
+        DATABASE_HANDLER?.addMessage(Message(messageContentText, to, from))
+
+    }
+
+
+    fun sendMessage(to:String,messageContent:String)
+    {
+        Thread(Runnable {
+            try
+            {
+                var port = getPortForToIp(to)  //port of receiver
+
+//                                    val socket = Socket(to, 5004)//above port of receiver
+                if (port != "None")
+                {
+                    val socket = Socket(to, Integer.parseInt(port))
+                    var outFromServer: PrintWriter? = PrintWriter(socket.getOutputStream())
+                    outFromServer?.println(messageContent.toString())
+                    outFromServer?.flush()
+                }
+            }
+            catch (ex: Exception)
+            {
+                Log.i("mytag", ex.toString() + ex.message.toString() + "in Sending a message through admin")
+            }
+
+        }).start()
+    }
 
 
     fun printAllMessages()

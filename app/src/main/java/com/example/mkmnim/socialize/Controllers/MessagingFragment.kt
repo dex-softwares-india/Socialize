@@ -194,6 +194,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
                 {
                     val socket = Socket("192.168.43.1", port)  //use 1 instead of 76 -  -  - host ip for testing using 192.168.43.76
 //                    val socket = Socket("10.132.240.103", port)
+
                     outFromClient = PrintWriter(socket.getOutputStream())
 
                 }
@@ -327,17 +328,18 @@ class MessagingFragment:android.support.v4.app.Fragment()
         while(true)
         {
 
-            Log.i("mytag", "stuck in looping volley port is $port")
-            Log.i("MYTIME",(Calendar.getInstance().timeInMillis-startTime).toString())
+//            Log.i("mytag", "stuck in looping volley port is $port")
+//            Log.i("MYTIME",(Calendar.getInstance().timeInMillis-startTime).toString())
 
             if ((Calendar.getInstance().timeInMillis-startTime)>1000)
             {
+                Log.i("mytag","quitting after trying connecting for 1 second")
                 port="None"
             }
 
             if (port != "")
             {
-                Log.i("PORTFROMIP","answerFromPortForIp is $port while looking $requestString")
+                Log.i("mytag","answerFromPortForIp is $port while looking $requestString")
                 break
             }
         }
