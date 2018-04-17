@@ -11,9 +11,7 @@ import com.example.mkmnim.socialize.Models.Message;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by nimish on 1/4/18.
- */
+
 
 public class DatabaseHandler extends SQLiteOpenHelper
 {

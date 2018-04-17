@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -238,7 +239,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Email.putExtra(Intent.EXTRA_SUBJECT, "Feedback")
                 Email.putExtra(Intent.EXTRA_TEXT, "Dear ...," + "")
                 startActivity(Intent.createChooser(Email, "Send Feedback:"))
-                return true
+//                return true
+                val intent = Intent(Intent.ACTION_SEND)//common intent
+                intent.data = Uri.parse("mailto:")
+
             }
         }
 
@@ -263,5 +267,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onDestroy()
     }
 
+    override fun onResume()
+    {
+        super.onResume()
+        appInFront = true
+    }
+
+    override fun onPause()
+    {
+        super.onPause()
+        appInFront = false
+    }
+
+    companion object
+    {
+        var appInFront:Boolean=false
+    }
 
 }

@@ -1,6 +1,9 @@
 package com.example.mkmnim.socialize.Controllers
 
 import android.app.AlertDialog
+import android.app.Notification
+import android.app.NotificationManager
+import android.content.Context
 import android.content.DialogInterface
 import android.net.Uri
 import android.os.Build
@@ -15,7 +18,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
-import com.example.mkmnim.socialize.RequestClass.VolleyCallBack
 import com.example.mkmnim.socialize.Utilities.CONNECTED_USERS_FRAGMENT_INITIALIZED_ONCE
 import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
 import com.example.mkmnim.socialize.Utilities.WifiService
@@ -225,6 +227,20 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                 println(messageContent)
                 activity.runOnUiThread {
                     Toast.makeText(context, messageContent.toString(), Toast.LENGTH_LONG).show()
+
+                    //Notification
+                    if (MainActivity.appInFront)
+                    {}
+                    else
+                    {
+                        val notif = activity.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        val notify = Notification.Builder(activity).setContentTitle("Socialize").setContentText("few unread messages").build()
+                        notify.flags = notify.flags or Notification.FLAG_AUTO_CANCEL
+                        notif.notify(0, notify)
+                    }
+
+
+
                     Log.i("mytag","readContent in ConnectedUserFragment")
 
                     //if JSON object contains a message
@@ -261,7 +277,10 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
                             if (initiateMessagingFragment != null)
                             {
-//                                initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count-1)
+                                if (initiateMessagingFragment!!.isFragmentUIActive())
+                                {
+                                    initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count - 1)
+                                }
                             }
                         }
 
@@ -391,24 +410,6 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         var requestString="http://"+to+":5000/portno"
         Log.i("mytag","request string is $requestString")
         var port:String=""  //possible values ["",None,port no]
-        var volleyCallBack=object: VolleyCallBack
-        {
-            override fun onSuccess(result: String)
-            {
-                Log.i("mytag","result is $result from callback")
-                if (result!="failed")
-                {
-                    port=JSONObject(result)["port"].toString()
-
-                }
-                else if (result=="failed")
-                {
-                    port="None"
-                }
-                Log.i("mytag","result is $result")
-
-            }
-        }
 //        VolleyService.getPort(requestString,context,volleyCallBack)
 //        {
 //           Log.i("mytag","post find port in volleyService")
