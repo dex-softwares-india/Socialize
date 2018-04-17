@@ -64,8 +64,6 @@
         app:layout_constraintGuide_percent="0.80" />
 
 
-
-
     <!--<android.support.design.widget.FloatingActionButton-->
     <!--android:id="@+id/sendButton"-->
     <!--android:layout_width="match_parent"-->

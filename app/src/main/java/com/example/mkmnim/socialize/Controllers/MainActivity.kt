@@ -13,6 +13,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import com.example.mkmnim.socialize.R
@@ -51,7 +52,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         registerReceivers()
         //****************************************************
 
-
+        //reach directly to messaging fragment from notfication
+       // goToMessagingFragment()
 
 
 //
@@ -217,6 +219,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_slideshow ->
             {
 //                selectedFragment=MessagingFragment()
+
             }
             R.id.nav_manage ->
             {
@@ -282,6 +285,58 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     companion object
     {
         var appInFront:Boolean=false
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean
+    {
+        menuInflater.inflate(R.menu.sendfile,menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean
+    {
+
+        Log.i("mytag", "MainActivitiy.onOptionsItemSelected")
+        when (item.itemId)
+        {
+            R.id.menu_send ->
+            {
+                Log.i("mytag","koh")
+
+            }
+            else ->
+            {
+                Log.i("mytag","hurr")
+            }
+        }
+        return false
+
+    }
+
+    fun goToMessagingFragment()
+    {
+        try
+        {
+            if(intent.getStringExtra("fragment")=="messaging")
+            {
+                var initiateMessagingFragment = MessagingFragment()
+                var args = Bundle()
+
+                args.putInt("position", intent.getIntExtra("position",0))
+                args.putStringArrayList("devices", intent.getStringArrayListExtra("devices"))
+
+                initiateMessagingFragment.arguments = args
+                var fragment=initiateMessagingFragment
+                var fragmentManager = getSupportFragmentManager()
+                fragmentManager.beginTransaction()
+                        .replace(R.id.frame_container, fragment).commit()
+
+            }
+        }
+        catch (ex:Exception)
+        {
+            Log.i("mytag",ex.toString())
+        }
     }
 
 }

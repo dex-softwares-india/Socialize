@@ -3,16 +3,16 @@ package com.example.mkmnim.socialize.Controllers
 import android.app.AlertDialog
 import android.app.Notification
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -229,15 +229,9 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                     Toast.makeText(context, messageContent.toString(), Toast.LENGTH_LONG).show()
 
                     //Notification
-                    if (MainActivity.appInFront)
-                    {}
-                    else
-                    {
-                        val notif = activity.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                        val notify = Notification.Builder(activity).setContentTitle("Socialize").setContentText("few unread messages").build()
-                        notify.flags = notify.flags or Notification.FLAG_AUTO_CANCEL
-                        notif.notify(0, notify)
-                    }
+
+
+
 
 
 
@@ -483,7 +477,11 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
         initiateMessagingFragment!!.arguments = args
         replaceFragment(initiateMessagingFragment!!)
+
+
     }
+
+
 
     fun replaceFragment(someFragment: android.support.v4.app.Fragment)
     {
@@ -524,13 +522,44 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
             {
                 addMessageToDatabase(messageContentText, to, from)
 
-                if (initiateMessagingFragment != null)
+                try
                 {
-                    if (initiateMessagingFragment!!.isFragmentUIActive())
-                    {
-                        initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count - 1)
-                    }
+                    initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count - 1)
                 }
+                catch(ex:Exception)
+                { }
+/*
+
+                if (MainActivity.appInFront)
+                {}
+                else
+                {
+
+                    val notif = activity.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    var myintent = Intent(context, MainActivity::class.java)
+
+                    try
+                    {
+                        myintent.putExtra("fragment","messaging")
+                        myintent.putExtra("position", connectedDevices.indexOf(from))
+                        myintent.putExtra("devices", connectedDevices)
+                    }
+                    catch(ex:Exception)
+                    {
+                        Log.i("mytag",ex.toString())
+                    }
+
+                    var contentIntent = PendingIntent.getActivity(context, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    val notify = Notification.Builder(activity)
+                            .setContentTitle("Socialize")
+                            .setContentText("few unread messages")
+                            .setContentIntent(contentIntent)
+                            .setSmallIcon(R.mipmap.ic_launcher).build()
+                    notify.flags = notify.flags or Notification.FLAG_AUTO_CANCEL
+                    notif.notify(0, notify)
+
+                }*/
             }
 
             if (WifiService.isHotspotOn(context))
@@ -541,10 +570,17 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                 {
                     addMessageToDatabase(messageContentText, to, from)
 
-                    if (initiateMessagingFragment != null)
+                    try
                     {
-                        initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count)
+                        initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count-1)
+
                     }
+                    catch (ex:Exception)
+                    {
+                        Log.i("mytag",ex.toString())
+                    }
+
+
                 }
                 else
                 {
@@ -554,10 +590,64 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
 
             }
+            //commented
+/*
+            if ((WifiService.isHotspotOn(context) && to =="192.168.43.1") ||( WifiService.isWifiOn(context)))
+            {
+                if (MainActivity.appInFront)
+                {}
+                else
+                {
+
+                    val notif = activity.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    var myintent = Intent(context, MainActivity::class.java)
+
+                    try
+                    {
+                        myintent.putExtra("fragment","messaging")
+                        myintent.putExtra("position", connectedDevices.indexOf(from))
+                        myintent.putExtra("devices", connectedDevices)
+                    }
+                    catch(ex:Exception)
+                    {
+                        Log.i("mytag",ex.toString())
+                    }
+
+                    var contentIntent = PendingIntent.getActivity(context, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    val notify = Notification.Builder(activity)
+                            .setContentTitle("Socialize")
+                            .setContentText("few unread messages")
+                            .setContentIntent(contentIntent)
+                            .setSmallIcon(R.mipmap.ic_launcher).build()
+                    notify.flags = notify.flags or Notification.FLAG_AUTO_CANCEL
+                    notif.notify(0, notify)
+
+                }
+
+            }
+*/
+
+
         }
 
 
     }
 
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true);
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?)
+    {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu?.clear()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean
+    {
+        return false
+    }
 }

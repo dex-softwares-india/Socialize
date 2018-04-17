@@ -3,21 +3,28 @@ package com.example.mkmnim.socialize.Controllers
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.example.mkmnim.socialize.Adapters.MessageAdapter
 import com.example.mkmnim.socialize.Models.Message
 import com.example.mkmnim.socialize.R
 import com.example.mkmnim.socialize.Utilities.DATABASE_HANDLER
 import com.example.mkmnim.socialize.Utilities.MESSAGING_FRAGMENT_INITIALIZED_ONCE
 import com.example.mkmnim.socialize.Utilities.WifiService
+import com.github.angads25.filepicker.model.DialogConfigs
 import kotlinx.android.synthetic.main.fragment_messaging.view.*
 import org.json.JSONObject
 import java.io.PrintWriter
 import java.util.*
+import com.github.angads25.filepicker.model.DialogProperties
+import java.io.File
+import com.github.angads25.filepicker.view.FilePickerDialog
+import com.github.angads25.filepicker.controller.DialogSelectionListener
+
+
+
+
 
 
 class MessagingFragment:android.support.v4.app.Fragment()
@@ -86,9 +93,11 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View
     {
+
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         myView = inflater?.inflate(R.layout.fragment_messaging, container, false)
         setAdaptersAndOnClickListeners()
+
 
         Log.i("mytag", this.arguments["position"].toString())
         Log.i("mytag", this.arguments["devices"].toString())
@@ -143,6 +152,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
                 }
             }
         }
+        myView!!.messagingListView.setSelection(myMessageAdapter.count-1)
     }
     fun replaceFragment(someFragment: android.support.v4.app.Fragment)
     {
@@ -168,4 +178,57 @@ class MessagingFragment:android.support.v4.app.Fragment()
         var outFromServerHashMap=HashMap<String,PrintWriter>()
         var outFromClient:PrintWriter?=null
     }
+
+
+    fun handleSendButtonEvent()
+    {
+        Log.i("mytag","waiting for dialog")
+        val properties = DialogProperties()
+        properties.selection_mode = DialogConfigs.MULTI_MODE;
+        properties.selection_type = DialogConfigs.FILE_AND_DIR_SELECT;
+        properties.root = File(DialogConfigs.DEFAULT_DIR);
+        properties.error_dir = File(DialogConfigs.DEFAULT_DIR);
+        properties.offset = File(DialogConfigs.DEFAULT_DIR);
+        properties.extensions = null;
+
+        val dialog = FilePickerDialog(context, properties)
+        dialog.setTitle("Select files")
+        dialog.setDialogSelectionListener {array->
+            for (i in array)
+            {
+                activity.runOnUiThread{
+                    Toast.makeText(context,i.toString(),Toast.LENGTH_SHORT).show()
+                }
+            }
+            //files is the array of the paths of files selected by the Application User.
+        }
+        dialog.show()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
+
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu)
+    {
+        menu.findItem(R.id.menu_send).isVisible = true
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean
+    {
+        Log.i("mytag",R.id.menu_send.toString())
+        when(item?.itemId)
+        {
+            R.id.menu_send->handleSendButtonEvent()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+
+
 }
+
