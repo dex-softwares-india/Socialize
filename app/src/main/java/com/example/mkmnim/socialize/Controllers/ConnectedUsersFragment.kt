@@ -64,7 +64,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                 if (temporaryPort != "None")
                 {
                     Log.i("mytag", "creating my host at" + temporaryPort.toString())
-                    CreateServerHostWithDifferentPorts(Integer.parseInt(temporaryPort))
+                    createServerHostWithDifferentPorts(Integer.parseInt(temporaryPort))
                 }
                 //for each device only one statement
             },1000)
@@ -197,9 +197,9 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         }).start()
     }
 
-    fun CreateServerHostWithDifferentPorts(port: Int)  //client (whose wifi is on) port from homepage
+    fun createServerHostWithDifferentPorts(port: Int)  //client (whose wifi is on) port from homepage
     {
-        Log.i("mytag", "CreateServerHostWithDifferentPorts")
+        Log.i("mytag", "createServerHostWithDifferentPorts")
         var serverSocket = ServerSocket(port)
 
         Thread(Runnable {
@@ -246,66 +246,8 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
                     //if JSON object contains a message
                     var receivedJSONObject=JSONObject(messageContent)
 
-                    if (receivedJSONObject.has("newDevice") && WifiService.isWifiOn(context))
-                    {
-                        if (connectedDevices.contains(receivedJSONObject["newDevice"].toString()))
-                        {}
-                        else
-                        {
-                            connectedDevices.add(receivedJSONObject["newDevice"].toString())
-                        }
+                    processReceivedObject(receivedJSONObject,messageContent)
 
-                        activity.runOnUiThread {
-                            myView!!.chatListView.adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, connectedDevices)
-                            myView!!.chatListView.onItemClickListener = this@ConnectedUsersFragment
-                        }
-
-                    }
-
-
-                    else if (receivedJSONObject.has("messageContent"))
-                    {
-                        var messageContentText = JSONObject(messageContent)["messageContent"].toString()
-                        var to = JSONObject(messageContent)["to"].toString()
-                        var from = JSONObject(messageContent)["from"].toString()
-
-                        Log.i("mytag", "send to $to from $from")
-
-                        if (WifiService.isWifiOn(context))
-                        {
-                            addMessageToDatabase(messageContentText, to, from)
-
-                            if (initiateMessagingFragment != null)
-                            {
-                                if (initiateMessagingFragment!!.isFragmentUIActive())
-                                {
-                                    initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count - 1)
-                                }
-                            }
-                        }
-
-                        if (WifiService.isHotspotOn(context))
-                        {
-//                        if self ip
-                            Log.i("mytag", "to is" + to.toString() + "p")
-                            if (to == "192.168.43.1") //to==admin Ip
-                            {
-                                addMessageToDatabase(messageContentText, to, from)
-
-                                if (initiateMessagingFragment != null)
-                                {
-                                    initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count)
-                                }
-                            }
-                            else
-                            {
-                                //send message to "to"
-                                sendMessage(to, messageContent)
-                            }
-
-
-                        }
-                    }
 
 
 
@@ -551,7 +493,71 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
         transaction.commit()
     }
 
+    fun processReceivedObject(receivedJSONObject: JSONObject,messageContent: String)
+    {
+        if (receivedJSONObject.has("newDevice") && WifiService.isWifiOn(context))
+        {
+            if (connectedDevices.contains(receivedJSONObject["newDevice"].toString()))
+            {}
+            else
+            {
+                connectedDevices.add(receivedJSONObject["newDevice"].toString())
+            }
 
+            activity.runOnUiThread {
+                myView!!.chatListView.adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, connectedDevices)
+                myView!!.chatListView.onItemClickListener = this@ConnectedUsersFragment
+            }
+
+        }
+
+
+        else if (receivedJSONObject.has("messageContent"))
+        {
+            var messageContentText = JSONObject(messageContent)["messageContent"].toString()
+            var to = JSONObject(messageContent)["to"].toString()
+            var from = JSONObject(messageContent)["from"].toString()
+
+            Log.i("mytag", "send to $to from $from")
+
+            if (WifiService.isWifiOn(context))
+            {
+                addMessageToDatabase(messageContentText, to, from)
+
+                if (initiateMessagingFragment != null)
+                {
+                    if (initiateMessagingFragment!!.isFragmentUIActive())
+                    {
+                        initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count - 1)
+                    }
+                }
+            }
+
+            if (WifiService.isHotspotOn(context))
+            {
+//                        if self ip
+                Log.i("mytag", "to is" + to.toString() + "p")
+                if (to == "192.168.43.1") //to==admin Ip
+                {
+                    addMessageToDatabase(messageContentText, to, from)
+
+                    if (initiateMessagingFragment != null)
+                    {
+                        initiateMessagingFragment!!.messagingListView.setSelection(initiateMessagingFragment!!.myMessageAdapter.count)
+                    }
+                }
+                else
+                {
+                    //send message to "to"
+                    sendMessage(to, messageContent)
+                }
+
+
+            }
+        }
+
+
+    }
 
 
 }
