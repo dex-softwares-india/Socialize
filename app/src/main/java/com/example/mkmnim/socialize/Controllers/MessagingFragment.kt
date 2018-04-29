@@ -15,16 +15,11 @@ import com.example.mkmnim.socialize.Utilities.WifiService
 import com.github.angads25.filepicker.model.DialogConfigs
 import kotlinx.android.synthetic.main.fragment_messaging.view.*
 import org.json.JSONObject
-import java.io.PrintWriter
 import java.util.*
 import com.github.angads25.filepicker.model.DialogProperties
-import java.io.File
 import com.github.angads25.filepicker.view.FilePickerDialog
 import com.github.angads25.filepicker.controller.DialogSelectionListener
-
-
-
-
+import java.io.*
 
 
 class MessagingFragment:android.support.v4.app.Fragment()
@@ -182,7 +177,7 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
     fun handleSendButtonEvent()
     {
-        Log.i("mytag","waiting for dialog")
+        Log.i("mytag", "waiting for dialog")
         val properties = DialogProperties()
         properties.selection_mode = DialogConfigs.MULTI_MODE;
         properties.selection_type = DialogConfigs.FILE_AND_DIR_SELECT;
@@ -193,14 +188,43 @@ class MessagingFragment:android.support.v4.app.Fragment()
 
         val dialog = FilePickerDialog(context, properties)
         dialog.setTitle("Select files")
-        dialog.setDialogSelectionListener {array->
+        dialog.setDialogSelectionListener { array ->
             for (i in array)
             {
-                activity.runOnUiThread{
-                    Toast.makeText(context,i.toString(),Toast.LENGTH_SHORT).show()
+                activity.runOnUiThread {
+                    Toast.makeText(context, i.toString(), Toast.LENGTH_SHORT).show()
+
+                    var fileToSend = i;
+                    var myFile = File(fileToSend);
+                    var mybytearray = ByteArray(myFile.length().toInt())
+
+                    var fis: FileInputStream? = null;
+
+                    try
+                    {
+                        fis = FileInputStream(myFile);
+                        var bis = BufferedInputStream(fis)
+                        bis.read(mybytearray, 0, mybytearray.size)
+
+
+                        Thread(Runnable {
+                            val jsonObject = JSONObject()
+                            jsonObject.put("fileContent", mybytearray.toString())
+                            TODO("add file name and start and end flag")
+                            outFromClient?.println(jsonObject.toString())
+                            outFromClient?.flush()
+                        }).start()
+
+                    }
+                    catch (ex: Exception)
+                    {
+                        Log.i("mytag", ex.toString())
+                    }
+
+
                 }
+                //files is the array of the paths of files selected by the Application User.
             }
-            //files is the array of the paths of files selected by the Application User.
         }
         dialog.show()
     }
@@ -223,7 +247,11 @@ class MessagingFragment:android.support.v4.app.Fragment()
         Log.i("mytag",R.id.menu_send.toString())
         when(item?.itemId)
         {
-            R.id.menu_send->handleSendButtonEvent()
+            R.id.menu_send ->
+            {
+                handleSendButtonEvent()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }

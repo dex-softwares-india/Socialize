@@ -239,7 +239,7 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
                     //if JSON object contains a message
                     var receivedJSONObject=JSONObject(messageContent)
-
+                    Log.i("mytag","jsonobject is $messageContent")
                     processReceivedObject(receivedJSONObject,messageContent)
 
 
@@ -261,9 +261,9 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
     fun addMessageToDatabase(messageContentText: String,to: String,from:String)
     {
+        DATABASE_HANDLER?.addMessage(Message(messageContentText, to, from))
         initiateMessagingFragment?.messages?.add(Message(messageContentText, to, from))
         initiateMessagingFragment?.myMessageAdapter?.notifyDataSetChanged()
-        DATABASE_HANDLER?.addMessage(Message(messageContentText, to, from))
 
     }
 
@@ -302,44 +302,6 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
     }
 
 
-    public fun getPortForToIps(to:String):String    //returns None or port no
-    {
-        var requestString="http://"+to+":5000/portno"
-        Log.i("mytag","request string is $requestString")
-        var port:String=""  //possible values ["",None,port no]
-
-        AsyncHttpClient.getDefaultInstance().executeJSONObject(AsyncHttpRequest(Uri.parse(requestString),"GET"), object : AsyncHttpClient.JSONObjectCallback()
-        {
-            override fun onCompleted(e: java.lang.Exception?, source: AsyncHttpResponse?, result: JSONObject?)
-            {
-                if (e != null)
-                {
-                    Log.i("mytag",e.message.toString())
-                    return
-                }
-                Log.i("mytag","I got a string: ${result.toString()}")
-                port=JSONObject(result.toString())["port"].toString()
-            }
-        })
-
-
-        while(true)
-        {
-
-            Log.i("mytag", "stuck in looping volley port")
-            Log.i("mytag","port is $port")
-
-
-            if (port != "")
-            {
-                Log.i("mytag","answerFromPortForIp is $port while looking $requestString")
-                break
-            }
-        }
-//        return 1234.toString()
-        return port.toString()
-
-    }
 
     public fun getPortForToIp(to:String):String    //returns None or port no
     {
@@ -631,6 +593,15 @@ class ConnectedUsersFragment:android.support.v4.app.Fragment(),AdapterView.OnIte
 
         }
 
+        else if (receivedJSONObject.has("fileContent"))
+        {
+            var fileData=receivedJSONObject["fileContent"].toString()
+            Log.i("mytag",fileData.toString())
+            var fileByteArray=fileData.toByteArray()
+            Log.i("mytag","byte array is ${fileData.toByteArray()}")
+            TODO("get file name and save to a file")
+
+        }
 
     }
 
